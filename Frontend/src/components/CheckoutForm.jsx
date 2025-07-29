@@ -83,7 +83,7 @@ const CheckoutForm = ({ clientSecret, shippingInfo, onSuccess, amount }) => {
         <label htmlFor="card-element" className="block text-sm font-medium text-gray-700 mb-2">
           Credit or debit card
         </label>
-        <div className="border border-gray-300 rounded-md p-3">
+        <div className="border border-gray-200 rounded-md p-3 bg-gray-50">
           <CardElement id="card-element" options={CARD_ELEMENT_OPTIONS} />
         </div>
       </div>

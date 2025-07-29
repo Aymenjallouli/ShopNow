@@ -9,7 +9,11 @@ export const login = createAsyncThunk(
       const response = await authService.login(credentials);
       return response;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.detail || 'Failed to login');
+      // Retourner directement l'objet d'erreur pour un meilleur traitement
+      if (error.response?.data) {
+        return rejectWithValue(error.response.data);
+      }
+      return rejectWithValue('Échec de connexion. Veuillez vérifier votre email et mot de passe.');
     }
   }
 );
@@ -21,24 +25,13 @@ export const register = createAsyncThunk(
       const response = await authService.register(userData);
       return response;
     } catch (error) {
-      // Handle detailed validation errors from DRF
+      console.error('Registration error:', error.response?.data);
+      
+      // Retourner directement l'objet d'erreur pour un meilleur traitement dans le composant
       if (error.response?.data) {
-        // If it's an object with field-specific errors
-        if (typeof error.response.data === 'object') {
-          const errorMessage = Object.entries(error.response.data)
-            .map(([field, errors]) => {
-              if (Array.isArray(errors)) {
-                return `${field}: ${errors.join(', ')}`;
-              }
-              return `${field}: ${errors}`;
-            })
-            .join('; ');
-          return rejectWithValue(errorMessage);
-        }
-        // If it's a string or has a detail field
-        return rejectWithValue(error.response.data.detail || error.response.data);
+        return rejectWithValue(error.response.data);
       }
-      return rejectWithValue('Failed to register. Please check your information and try again.');
+      return rejectWithValue('Échec de l\'inscription. Veuillez vérifier vos informations et réessayer.');
     }
   }
 );
@@ -65,7 +58,24 @@ export const updateProfile = createAsyncThunk(
       const response = await authService.updateProfile(userData);
       return response;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.detail || 'Failed to update profile');
+      // Handle detailed validation errors from DRF
+      if (error.response?.data) {
+        // If it's an object with field-specific errors
+        if (typeof error.response.data === 'object') {
+          const errorMessage = Object.entries(error.response.data)
+            .map(([field, errors]) => {
+              if (Array.isArray(errors)) {
+                return `${field}: ${errors.join(', ')}`;
+              }
+              return `${field}: ${errors}`;
+            })
+            .join('; ');
+          return rejectWithValue(errorMessage);
+        }
+        // If it's a string or has a detail field
+        return rejectWithValue(error.response.data.detail || error.response.data);
+      }
+      return rejectWithValue('Failed to update profile. Please check your information and try again.');
     }
   }
 );
@@ -98,6 +108,14 @@ const authSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+    },
+    sessionExpired: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+      state.error = 'Your session has expired. Please login again.';
+      // Remove tokens from localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
     },
   },
   extraReducers: (builder) => {

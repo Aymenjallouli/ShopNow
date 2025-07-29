@@ -17,7 +17,9 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
+    first_name: '',
+    last_name: '',
+    username: '',
     email: '',
     currentPassword: '',
     newPassword: '',
@@ -39,7 +41,9 @@ const Profile = () => {
   useEffect(() => {
     if (user) {
       setFormData({
-        name: user.name || '',
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
+        username: user.username || '',
         email: user.email || '',
         currentPassword: '',
         newPassword: '',
@@ -71,8 +75,16 @@ const Profile = () => {
   const validateForm = () => {
     const errors = {};
     
-    if (!formData.name.trim()) {
-      errors.name = 'Name is required';
+    if (!formData.first_name.trim()) {
+      errors.first_name = 'First name is required';
+    }
+    
+    if (!formData.last_name.trim()) {
+      errors.last_name = 'Last name is required';
+    }
+    
+    if (!formData.username.trim()) {
+      errors.username = 'Username is required';
     }
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -107,7 +119,9 @@ const Profile = () => {
     if (validateForm()) {
       // Only include password fields if user is changing password
       const updateData = {
-        name: formData.name,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        username: formData.username,
         email: formData.email,
       };
       
@@ -120,7 +134,7 @@ const Profile = () => {
         .unwrap()
         .then(() => {
           setIsEditing(false);
-          toast.success('Profile updated successfully');
+          alert('Profile updated successfully');
           
           // Clear password fields
           setFormData((prev) => ({
@@ -130,8 +144,9 @@ const Profile = () => {
             confirmPassword: '',
           }));
         })
-        .catch(() => {
-          // Error is handled by the auth slice
+        .catch((error) => {
+          // Show error message
+          alert(`Failed to update profile: ${error}`);
         });
     }
   };
@@ -199,21 +214,59 @@ const Profile = () => {
                   <form onSubmit={handleSubmit}>
                     <div className="space-y-4">
                       <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                          Full Name
+                        <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">
+                          First Name
                         </label>
                         <input
                           type="text"
-                          id="name"
-                          name="name"
-                          value={formData.name}
+                          id="first_name"
+                          name="first_name"
+                          value={formData.first_name}
                           onChange={handleChange}
                           className={`mt-1 block w-full border ${
-                            formErrors.name ? 'border-red-300' : 'border-gray-300'
-                          } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+                            formErrors.first_name ? 'border-red-300' : 'border-gray-200'
+                          } bg-gray-50 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700`}
                         />
-                        {formErrors.name && (
-                          <p className="mt-1 text-sm text-red-600">{formErrors.name}</p>
+                        {formErrors.first_name && (
+                          <p className="mt-1 text-sm text-red-600">{formErrors.first_name}</p>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">
+                          Last Name
+                        </label>
+                        <input
+                          type="text"
+                          id="last_name"
+                          name="last_name"
+                          value={formData.last_name}
+                          onChange={handleChange}
+                          className={`mt-1 block w-full border ${
+                            formErrors.last_name ? 'border-red-300' : 'border-gray-200'
+                          } bg-gray-50 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700`}
+                        />
+                        {formErrors.last_name && (
+                          <p className="mt-1 text-sm text-red-600">{formErrors.last_name}</p>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                          Username
+                        </label>
+                        <input
+                          type="text"
+                          id="username"
+                          name="username"
+                          value={formData.username}
+                          onChange={handleChange}
+                          className={`mt-1 block w-full border ${
+                            formErrors.username ? 'border-red-300' : 'border-gray-200'
+                          } bg-gray-50 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700`}
+                        />
+                        {formErrors.username && (
+                          <p className="mt-1 text-sm text-red-600">{formErrors.username}</p>
                         )}
                       </div>
                       
@@ -228,8 +281,8 @@ const Profile = () => {
                           value={formData.email}
                           onChange={handleChange}
                           className={`mt-1 block w-full border ${
-                            formErrors.email ? 'border-red-300' : 'border-gray-300'
-                          } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+                            formErrors.email ? 'border-red-300' : 'border-gray-200'
+                          } bg-gray-50 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700`}
                         />
                         {formErrors.email && (
                           <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
@@ -251,8 +304,8 @@ const Profile = () => {
                               value={formData.currentPassword}
                               onChange={handleChange}
                               className={`mt-1 block w-full border ${
-                                formErrors.currentPassword ? 'border-red-300' : 'border-gray-300'
-                              } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+                                formErrors.currentPassword ? 'border-red-300' : 'border-gray-200'
+                              } bg-gray-50 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700`}
                             />
                             {formErrors.currentPassword && (
                               <p className="mt-1 text-sm text-red-600">{formErrors.currentPassword}</p>
@@ -270,8 +323,8 @@ const Profile = () => {
                               value={formData.newPassword}
                               onChange={handleChange}
                               className={`mt-1 block w-full border ${
-                                formErrors.newPassword ? 'border-red-300' : 'border-gray-300'
-                              } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+                                formErrors.newPassword ? 'border-red-300' : 'border-gray-200'
+                              } bg-gray-50 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700`}
                             />
                             {formErrors.newPassword && (
                               <p className="mt-1 text-sm text-red-600">{formErrors.newPassword}</p>
@@ -289,8 +342,8 @@ const Profile = () => {
                               value={formData.confirmPassword}
                               onChange={handleChange}
                               className={`mt-1 block w-full border ${
-                                formErrors.confirmPassword ? 'border-red-300' : 'border-gray-300'
-                              } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+                                formErrors.confirmPassword ? 'border-red-300' : 'border-gray-200'
+                              } bg-gray-50 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700`}
                             />
                             {formErrors.confirmPassword && (
                               <p className="mt-1 text-sm text-red-600">{formErrors.confirmPassword}</p>
@@ -306,7 +359,9 @@ const Profile = () => {
                         onClick={() => {
                           setIsEditing(false);
                           setFormData({
-                            name: user.name || '',
+                            first_name: user.first_name || '',
+                            last_name: user.last_name || '',
+                            username: user.username || '',
                             email: user.email || '',
                             currentPassword: '',
                             newPassword: '',
@@ -335,8 +390,16 @@ const Profile = () => {
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <h3 className="text-sm font-medium text-gray-500">Full Name</h3>
-                        <p className="mt-1 text-sm text-gray-900">{user.name}</p>
+                        <h3 className="text-sm font-medium text-gray-500">First Name</h3>
+                        <p className="mt-1 text-sm text-gray-900">{user.first_name}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-500">Last Name</h3>
+                        <p className="mt-1 text-sm text-gray-900">{user.last_name}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-500">Username</h3>
+                        <p className="mt-1 text-sm text-gray-900">{user.username}</p>
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-gray-500">Email Address</h3>

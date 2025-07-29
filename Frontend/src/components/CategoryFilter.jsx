@@ -12,7 +12,7 @@ const CategoryFilter = ({ categories = [], selectedCategory, onCategoryChange })
         name="category"
         value={selectedCategory || 'all'}
         onChange={(e) => onCategoryChange(e.target.value)}
-        className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        className="w-full border border-gray-200 bg-gray-50 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700"
       >
         <option value="all">All Categories</option>
         {safeCategories.length > 0 && safeCategories.map((category) => (

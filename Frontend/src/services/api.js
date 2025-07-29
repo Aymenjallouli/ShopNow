@@ -36,9 +36,14 @@ api.interceptors.response.use(
         // Try to refresh the token
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) {
+          // Clear any leftover tokens and reject
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
+          console.log('No refresh token found');
           return Promise.reject(error);
         }
         
+        // Attempt to refresh the token
         const response = await axios.post(`${BASE_URL}/token/refresh/`, {
           refresh: refreshToken,
         });
@@ -51,10 +56,17 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${access}`;
         return api(originalRequest);
       } catch (refreshError) {
+        console.error('Token refresh failed:', refreshError.response?.data);
+        
         // If refresh fails, clear tokens and redirect to login
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
+        
+        // Only redirect to login if not already on login page to prevent redirect loops
+        const currentPath = window.location.pathname;
+        if (currentPath !== '/login' && currentPath !== '/register') {
+          window.location.href = '/login';
+        }
         return Promise.reject(refreshError);
       }
     }

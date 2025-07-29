@@ -82,7 +82,7 @@ const Navbar = () => {
                       placeholder="Search products..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-48 lg:w-64 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-1 px-3 border"
+                      className="w-48 lg:w-64 rounded-md border-gray-200 bg-gray-50 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-1 px-3 border text-gray-700 placeholder-gray-400"
                     />
                     <button
                       type="submit"
@@ -183,6 +183,21 @@ const Navbar = () => {
                             </Link>
                           )}
                         </Menu.Item>
+                        {user?.is_staff && (
+                          <Menu.Item>
+                            {({ active }) => (
+                              <Link
+                                to="/admin"
+                                className={classNames(
+                                  active ? 'bg-gray-100' : '',
+                                  'block px-4 py-2 text-sm font-medium text-indigo-600'
+                                )}
+                              >
+                                Admin Dashboard
+                              </Link>
+                            )}
+                          </Menu.Item>
+                        )}
                         <Menu.Item>
                           {({ active }) => (
                             <button
@@ -237,7 +252,7 @@ const Navbar = () => {
                     placeholder="Search products..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
+                    className="w-full rounded-md bg-gray-50 border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border text-gray-700 placeholder-gray-400"
                   />
                   <button
                     type="submit"

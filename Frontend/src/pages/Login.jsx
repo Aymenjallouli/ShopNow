@@ -19,6 +19,8 @@ const Login = () => {
   
   // Get the return path (if any) from location state
   const from = location.state?.from || '/';
+
+  // Format error message for display est supprimé car nous utilisons maintenant l'objet d'erreur directement
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,13 +43,13 @@ const Login = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     
     if (!formData.email) {
-      errors.email = 'Email is required';
+      errors.email = 'L\'email est requis';
     } else if (!emailRegex.test(formData.email)) {
-      errors.email = 'Please enter a valid email address';
+      errors.email = 'Veuillez entrer une adresse email valide';
     }
     
     if (!formData.password) {
-      errors.password = 'Password is required';
+      errors.password = 'Le mot de passe est requis';
     }
     
     setFormErrors(errors);
@@ -63,8 +65,34 @@ const Login = () => {
         .then(() => {
           navigate(from);
         })
-        .catch(() => {
-          // Error is handled by the auth slice
+        .catch((error) => {
+          // Gestion d'erreur simplifiée
+          console.log("Erreur de connexion:", error);
+          
+          // Si l'erreur contient un message spécifique sur l'email ou le mot de passe
+          if (error && typeof error === 'object') {
+            // Pour les erreurs spécifiques aux champs
+            if (error.email) {
+              setFormErrors(prev => ({ ...prev, email: error.email }));
+            }
+            if (error.password) {
+              setFormErrors(prev => ({ ...prev, password: error.password }));
+            }
+            // Pour les erreurs générales (détail)
+            if (error.detail && !error.email && !error.password) {
+              setFormErrors(prev => ({
+                ...prev,
+                email: error.detail,
+                password: error.detail
+              }));
+            }
+          } else {
+            // Erreur générique
+            setFormErrors({
+              email: "Identifiants invalides",
+              password: "Identifiants invalides"
+            });
+          }
         });
     }
   };
@@ -74,17 +102,32 @@ const Login = () => {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h1 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
+            Connexion à votre compte
           </h1>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
+            Ou{' '}
             <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-              create a new account
+              créer un nouveau compte
             </Link>
           </p>
         </div>
         
-        {status === 'failed' && <ErrorMessage message={error} />}
+        {status === 'failed' && (
+          <div className="p-4 border border-red-300 bg-red-50 rounded-md">
+            <h3 className="text-sm font-medium text-red-800">Échec de connexion</h3>
+            <div className="mt-2 text-sm text-red-700">
+              {error && typeof error === 'object' ? (
+                <ul className="list-disc pl-5 space-y-1">
+                  {Object.entries(error).map(([key, value]) => (
+                    <li key={key}>{`${key}: ${value}`}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>{typeof error === 'string' ? error : "Email ou mot de passe incorrect"}</p>
+              )}
+            </div>
+          </div>
+        )}
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
@@ -100,9 +143,9 @@ const Login = () => {
                 value={formData.email}
                 onChange={handleChange}
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
-                  formErrors.email ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                placeholder="Email address"
+                  formErrors.email ? 'border-red-300' : 'border-gray-200'
+                } bg-gray-50 placeholder-gray-400 text-gray-700 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
+                placeholder="Adresse email"
               />
               {formErrors.email && (
                 <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
@@ -120,9 +163,9 @@ const Login = () => {
                 value={formData.password}
                 onChange={handleChange}
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
-                  formErrors.password ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                placeholder="Password"
+                  formErrors.password ? 'border-red-300' : 'border-gray-200'
+                } bg-gray-50 placeholder-gray-400 text-gray-700 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
+                placeholder="Mot de passe"
               />
               {formErrors.password && (
                 <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>
@@ -139,13 +182,13 @@ const Login = () => {
                 className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
               />
               <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Remember me
+                Se souvenir de moi
               </label>
             </div>
             
             <div className="text-sm">
               <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                Forgot your password?
+                Mot de passe oublié?
               </a>
             </div>
           </div>
@@ -159,7 +202,7 @@ const Login = () => {
               {status === 'loading' ? (
                 <Loader size="sm" />
               ) : (
-                'Sign in'
+                'Se connecter'
               )}
             </button>
           </div>

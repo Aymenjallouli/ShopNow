@@ -41,31 +41,29 @@ const Register = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     
     if (!formData.first_name.trim()) {
-      errors.first_name = 'First name is required';
+      errors.first_name = 'Le prénom est requis';
     }
     
     if (!formData.last_name.trim()) {
-      errors.last_name = 'Last name is required';
+      errors.last_name = 'Le nom est requis';
     }
     
-    if (!formData.username.trim()) {
-      errors.username = 'Username is required';
-    }
+    // Username est optionnel, aucune validation nécessaire
     
     if (!formData.email) {
-      errors.email = 'Email is required';
+      errors.email = 'L\'email est requis';
     } else if (!emailRegex.test(formData.email)) {
-      errors.email = 'Please enter a valid email address';
+      errors.email = 'Veuillez entrer une adresse email valide';
     }
     
     if (!formData.password) {
-      errors.password = 'Password is required';
+      errors.password = 'Le mot de passe est requis';
     } else if (formData.password.length < 8) {
-      errors.password = 'Password must be at least 8 characters long';
+      errors.password = 'Le mot de passe doit contenir au moins 8 caractères';
     }
     
     if (formData.password !== formData.password2) {
-      errors.password2 = 'Passwords do not match';
+      errors.password2 = 'Les mots de passe ne correspondent pas';
     }
     
     setFormErrors(errors);
@@ -76,12 +74,26 @@ const Register = () => {
     e.preventDefault();
     
     if (validateForm()) {
-      dispatch(register(formData))
+      // Préparer les données pour l'envoi
+      const submitData = {...formData};
+      
+      // Si le username est vide, c'est OK, le backend utilisera l'email comme username par défaut
+      
+      dispatch(register(submitData))
         .unwrap()
         .then(() => {
-          navigate('/');
+          // Afficher un message de succès avant la redirection
+          alert('Inscription réussie! Vous pouvez maintenant vous connecter.');
+          navigate('/login');
         })
-        .catch(() => {
+        .catch((error) => {
+          console.log("Erreur d'inscription:", error);
+          
+          // Si l'erreur concerne un email déjà utilisé, afficher un message spécifique
+          if (error && error.email && error.email.includes("déjà utilisée")) {
+            alert(`Cette adresse email est déjà utilisée. Veuillez utiliser une autre adresse email ou vous connecter avec celle-ci.`);
+          }
+          
           // Error is handled by the auth slice
         });
     }
@@ -92,24 +104,24 @@ const Register = () => {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h1 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
+            Créer votre compte
           </h1>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
+            Ou{' '}
             <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-              sign in to your existing account
+              connectez-vous à votre compte existant
             </Link>
           </p>
         </div>
         
         {status === 'failed' && (
           <div className="p-4 border border-red-300 bg-red-50 rounded-md">
-            <h3 className="text-sm font-medium text-red-800">Registration failed</h3>
+            <h3 className="text-sm font-medium text-red-800">Échec de l'inscription</h3>
             <div className="mt-2 text-sm text-red-700">
-              {error && error.includes(';') ? (
+              {error && typeof error === 'object' ? (
                 <ul className="list-disc pl-5 space-y-1">
-                  {error.split(';').map((err, index) => (
-                    <li key={index}>{err.trim()}</li>
+                  {Object.entries(error).map(([key, value]) => (
+                    <li key={key}>{`${key}: ${value}`}</li>
                   ))}
                 </ul>
               ) : (
@@ -133,9 +145,9 @@ const Register = () => {
                 value={formData.username}
                 onChange={handleChange}
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
-                  formErrors.username ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                placeholder="Username"
+                  formErrors.username ? 'border-red-300' : 'border-gray-200'
+                } bg-gray-50 placeholder-gray-400 text-gray-700 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
+                placeholder="Nom d'utilisateur (optionnel)"
               />
               {formErrors.username && (
                 <p className="mt-1 text-sm text-red-600">{formErrors.username}</p>
@@ -153,9 +165,9 @@ const Register = () => {
                 value={formData.first_name}
                 onChange={handleChange}
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
-                  formErrors.first_name ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                placeholder="First Name"
+                  formErrors.first_name ? 'border-red-300' : 'border-gray-200'
+                } bg-gray-50 placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
+                placeholder="Prénom"
               />
               {formErrors.first_name && (
                 <p className="mt-1 text-sm text-red-600">{formErrors.first_name}</p>
@@ -173,9 +185,9 @@ const Register = () => {
                 value={formData.last_name}
                 onChange={handleChange}
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
-                  formErrors.last_name ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                placeholder="Last Name"
+                  formErrors.last_name ? 'border-red-300' : 'border-gray-200'
+                } bg-gray-50 placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
+                placeholder="Nom"
               />
               {formErrors.last_name && (
                 <p className="mt-1 text-sm text-red-600">{formErrors.last_name}</p>
@@ -193,9 +205,9 @@ const Register = () => {
                 value={formData.email}
                 onChange={handleChange}
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
-                  formErrors.email ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                placeholder="Email address"
+                  formErrors.email ? 'border-red-300' : 'border-gray-200'
+                } bg-gray-50 placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
+                placeholder="Adresse email"
               />
               {formErrors.email && (
                 <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
@@ -213,9 +225,9 @@ const Register = () => {
                 value={formData.password}
                 onChange={handleChange}
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
-                  formErrors.password ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                placeholder="Password"
+                  formErrors.password ? 'border-red-300' : 'border-gray-200'
+                } bg-gray-50 placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
+                placeholder="Mot de passe"
               />
               {formErrors.password && (
                 <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>
@@ -223,7 +235,7 @@ const Register = () => {
             </div>
             <div>
               <label htmlFor="password2" className="sr-only">
-                Confirm Password
+                Confirmer le mot de passe
               </label>
               <input
                 id="password2"
@@ -233,9 +245,9 @@ const Register = () => {
                 value={formData.password2}
                 onChange={handleChange}
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
-                  formErrors.password2 ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                placeholder="Confirm Password"
+                  formErrors.password2 ? 'border-red-300' : 'border-gray-200'
+                } bg-gray-50 placeholder-gray-400 text-gray-700 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
+                placeholder="Confirmer le mot de passe"
               />
               {formErrors.password2 && (
                 <p className="mt-1 text-sm text-red-600">{formErrors.password2}</p>
@@ -252,7 +264,7 @@ const Register = () => {
               {status === 'loading' ? (
                 <Loader size="sm" />
               ) : (
-                'Create Account'
+                'Créer compte'
               )}
             </button>
           </div>

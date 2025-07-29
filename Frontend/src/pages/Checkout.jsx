@@ -151,7 +151,7 @@ const Checkout = () => {
                   name="fullName"
                   value={shippingInfo.fullName}
                   onChange={handleShippingInfoChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-200 bg-gray-50 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700 placeholder-gray-400"
                   required
                 />
               </div>
@@ -166,7 +166,7 @@ const Checkout = () => {
                   name="email"
                   value={shippingInfo.email}
                   onChange={handleShippingInfoChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-200 bg-gray-50 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700 placeholder-gray-400"
                   required
                 />
               </div>
@@ -181,7 +181,7 @@ const Checkout = () => {
                   name="address"
                   value={shippingInfo.address}
                   onChange={handleShippingInfoChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-200 bg-gray-50 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700 placeholder-gray-400"
                   required
                 />
               </div>
@@ -196,7 +196,7 @@ const Checkout = () => {
                   name="city"
                   value={shippingInfo.city}
                   onChange={handleShippingInfoChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-200 bg-gray-50 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700 placeholder-gray-400"
                   required
                 />
               </div>
@@ -211,7 +211,7 @@ const Checkout = () => {
                   name="state"
                   value={shippingInfo.state}
                   onChange={handleShippingInfoChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-200 bg-gray-50 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700 placeholder-gray-400"
                   required
                 />
               </div>
@@ -226,7 +226,7 @@ const Checkout = () => {
                   name="postalCode"
                   value={shippingInfo.postalCode}
                   onChange={handleShippingInfoChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-200 bg-gray-50 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700 placeholder-gray-400"
                   required
                 />
               </div>
@@ -240,7 +240,7 @@ const Checkout = () => {
                   name="country"
                   value={shippingInfo.country}
                   onChange={handleShippingInfoChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-200 bg-gray-50 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700"
                   required
                 >
                   <option value="US">United States</option>
@@ -261,7 +261,7 @@ const Checkout = () => {
                   name="phoneNumber"
                   value={shippingInfo.phoneNumber}
                   onChange={handleShippingInfoChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-200 bg-gray-50 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700 placeholder-gray-400"
                   required
                 />
               </div>

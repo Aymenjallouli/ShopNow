@@ -13,22 +13,19 @@ const ProductCard = ({ product }) => {
     return null;
   }
 
-  const { id, name = 'Product Name', price = 0, images = [], rating = 0, stock = 0, category } = product;
-  
+  const { id, name = 'Product Name', price = 0, image = '', rating = 0, stock = 0, category } = product;
   const truncatedName = name && name.length > 40 ? `${name.substring(0, 40)}...` : name;
-  
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
     dispatch(addToCart({ product, quantity: 1 }));
   };
-  
   return (
     <div className="group relative">
       <Link to={`/products/${id}`}>
         <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-100">
           <img
-            src={images && images.length > 0 && images[0]?.image ? images[0].image : '/placeholder.jpg'}
+            src={image && image.startsWith('http') ? image : '/placeholder.jpg'}
             alt={name}
             className="h-60 w-full object-cover object-center group-hover:opacity-75 transition-opacity"
             onError={(e) => {
