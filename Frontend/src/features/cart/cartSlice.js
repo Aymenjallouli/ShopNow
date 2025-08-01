@@ -67,7 +67,8 @@ export const clearCart = createAsyncThunk(
 
 const initialState = {
   items: [],
-  total: 0,
+  totalPrice: 0,
+  totalItems: 0,
   itemCount: 0,
   loading: false,
   error: null,
@@ -79,7 +80,8 @@ const cartSlice = createSlice({
   reducers: {
     resetCart: (state) => {
       state.items = [];
-      state.total = 0;
+      state.totalPrice = 0;
+      state.totalItems = 0;
       state.itemCount = 0;
       state.error = null;
     },
@@ -96,7 +98,8 @@ const cartSlice = createSlice({
       })
       .addCase(fetchCart.fulfilled, (state, action) => {
         state.items = action.payload.items || [];
-        state.total = action.payload.total || 0;
+        state.totalPrice = action.payload.total_price || 0;
+        state.totalItems = action.payload.total_items || 0;
         state.itemCount = state.items.length;
         state.loading = false;
       })
@@ -112,7 +115,8 @@ const cartSlice = createSlice({
       })
       .addCase(addToCart.fulfilled, (state, action) => {
         state.items = action.payload.items || [];
-        state.total = action.payload.total || 0;
+        state.totalPrice = action.payload.total_price || 0;
+        state.totalItems = action.payload.total_items || 0;
         state.itemCount = state.items.length;
         state.loading = false;
       })
@@ -128,7 +132,8 @@ const cartSlice = createSlice({
       })
       .addCase(updateCartItem.fulfilled, (state, action) => {
         state.items = action.payload.items || [];
-        state.total = action.payload.total || 0;
+        state.totalPrice = action.payload.total_price || 0;
+        state.totalItems = action.payload.total_items || 0;
         state.itemCount = state.items.length;
         state.loading = false;
       })
@@ -144,7 +149,8 @@ const cartSlice = createSlice({
       })
       .addCase(removeFromCart.fulfilled, (state, action) => {
         state.items = state.items.filter(item => item.id !== action.payload);
-        state.total = state.items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+        state.totalPrice = state.items.reduce((sum, item) => sum + (item.total_price || 0), 0);
+        state.totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0);
         state.itemCount = state.items.length;
         state.loading = false;
       })
@@ -160,7 +166,8 @@ const cartSlice = createSlice({
       })
       .addCase(clearCart.fulfilled, (state) => {
         state.items = [];
-        state.total = 0;
+        state.totalPrice = 0;
+        state.totalItems = 0;
         state.itemCount = 0;
         state.loading = false;
       })

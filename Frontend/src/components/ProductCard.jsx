@@ -18,7 +18,12 @@ const ProductCard = ({ product }) => {
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    dispatch(addToCart({ product, quantity: 1 }));
+    if (isAuthenticated) {
+      dispatch(addToCart({ productId: id, quantity: 1 }));
+    } else {
+      // Redirect to login if not authenticated
+      window.location.href = '/login';
+    }
   };
   return (
     <div className="group relative">

@@ -14,10 +14,15 @@ import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import PaymentTest from './pages/PaymentTest';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Wishlist from './pages/Wishlist';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import FAQ from './pages/FAQ';
+import TrackingPage from './pages/TrackingPage';
 import NotFound from './pages/NotFound';
 
 // Admin pages
@@ -90,12 +95,16 @@ function App() {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="flex-grow">
+      <main className="flex-grow pt-16">
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Home />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/payment-test" element={<PaymentTest />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
@@ -123,6 +132,14 @@ function App() {
                 <Wishlist />
               </ProtectedRoute>
             } 
+          />
+          <Route 
+            path="/tracking/:trackingNumber" 
+            element={<TrackingPage />} 
+          />
+          <Route 
+            path="/tracking" 
+            element={<TrackingPage />} 
           />
           
           {/* Admin routes */}

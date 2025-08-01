@@ -32,11 +32,11 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = () => {
-    dispatch(addToCart({ product: singleProduct, quantity }));
+    dispatch(addToCart({ productId: singleProduct.id, quantity }));
   };
 
   const handleBuyNow = () => {
-    dispatch(addToCart({ product: singleProduct, quantity }));
+    dispatch(addToCart({ productId: singleProduct.id, quantity }));
     navigate('/checkout');
   };
 

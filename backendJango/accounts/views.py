@@ -1,11 +1,16 @@
-from rest_framework import permissions
-from rest_framework.generics import ListAPIView
+from rest_framework import permissions, status
+from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
 from django.contrib.auth import get_user_model
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer, AdminUserSerializer
 
 class AdminUserListView(ListAPIView):
     queryset = get_user_model().objects.all()
-    serializer_class = RegisterSerializer
+    serializer_class = AdminUserSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+class AdminUserDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = get_user_model().objects.all()
+    serializer_class = AdminUserSerializer
     permission_classes = [permissions.IsAdminUser]
 from rest_framework import generics, permissions
 from rest_framework.views import APIView

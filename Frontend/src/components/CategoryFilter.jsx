@@ -4,7 +4,7 @@ const CategoryFilter = ({ categories = [], selectedCategory, onCategoryChange })
   
   return (
     <div className="w-full md:w-1/3">
-      <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+      <label htmlFor="category" className="block text-sm font-medium text-slate-700 mb-2">
         Filter by Category
       </label>
       <select
@@ -12,7 +12,7 @@ const CategoryFilter = ({ categories = [], selectedCategory, onCategoryChange })
         name="category"
         value={selectedCategory || 'all'}
         onChange={(e) => onCategoryChange(e.target.value)}
-        className="w-full border border-gray-200 bg-gray-50 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700"
+        className="w-full border border-slate-200 bg-slate-50 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-300 sm:text-sm text-slate-700 transition-all duration-200"
       >
         <option value="all">All Categories</option>
         {safeCategories.length > 0 && safeCategories.map((category) => (

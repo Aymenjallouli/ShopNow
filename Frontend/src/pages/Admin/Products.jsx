@@ -196,113 +196,138 @@ const ProductManagement = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-emerald-50">
       <Sidebar />
       
       <div className="flex-1 overflow-x-hidden overflow-y-auto">
         <main className="p-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-semibold text-gray-800">Product Management</h1>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-slate-800 bg-clip-text text-transparent">
+              Product Management
+            </h1>
             
             <button
               onClick={handleCreateProduct}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md"
+              className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center gap-2"
             >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
               Add New Product
             </button>
           </div>
           
           {error && (
-            <div className="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {error}
+            <div className="mt-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl backdrop-blur-sm">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                {error}
+              </div>
             </div>
           )}
           
-          <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Product List */}
-            <div className="col-span-2 bg-white rounded-lg shadow">
+            <div className="col-span-2 bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20">
               <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Products</h2>
+                <h2 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
+                  <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4.5M20 7v10l-8 4.5M4 7v10l-8 4.5m8-4.5v10" />
+                  </svg>
+                  Products ({Array.isArray(products) ? products.length : 0})
+                </h2>
                 
                 {loading && !products.length ? (
-                  <p className="text-gray-500">Loading products...</p>
+                  <div className="flex justify-center items-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                  </div>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                  <div className="overflow-hidden rounded-xl">
+                    <table className="min-w-full divide-y divide-slate-200">
+                      <thead className="bg-gradient-to-r from-slate-50 to-slate-100">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                             Product
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                             Price
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                             Stock
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                             Status
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                             Actions
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody className="bg-white divide-y divide-slate-200">
                         {Array.isArray(products) && products.length > 0 && products.map((product) => (
-                          <tr key={product.id} className={selectedProduct?.id === product.id ? 'bg-indigo-50' : ''}>
+                          <tr 
+                            key={product.id} 
+                            className={`hover:bg-slate-50/50 transition-all duration-200 ${
+                              selectedProduct?.id === product.id ? 'bg-emerald-50 ring-2 ring-emerald-200/50' : ''
+                            }`}
+                          >
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
-                                <div className="flex-shrink-0 h-10 w-10">
+                                <div className="flex-shrink-0 h-12 w-12">
                                   <img
-                                    className="h-10 w-10 rounded-full object-cover"
+                                    className="h-12 w-12 rounded-xl object-cover shadow-md border border-slate-200"
                                     src={product.image || 'https://via.placeholder.com/150'}
                                     alt={product.name}
                                   />
                                 </div>
                                 <div className="ml-4">
-                                  <div className="text-sm font-medium text-gray-900">
+                                  <div className="text-sm font-semibold text-slate-900">
                                     {product.name}
                                   </div>
-                                  <div className="text-sm text-gray-500">
+                                  <div className="text-sm text-slate-500">
                                     {product.category_name}
                                   </div>
                                 </div>
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">${product.price}</div>
+                              <div className="text-sm font-semibold text-slate-900">${product.price}</div>
                               {product.discount_price && (
-                                <div className="text-sm text-red-600">${product.discount_price}</div>
+                                <div className="text-sm font-medium text-emerald-600">${product.discount_price}</div>
                               )}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {product.stock}
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="text-sm font-medium text-slate-700">{product.stock}</span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               {product.status === 'available' ? (
-                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
                                   Available
                                 </span>
                               ) : (
-                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 border border-red-200">
                                   Unavailable
                                 </span>
                               )}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <button
-                                onClick={() => handleSelectProduct(product)}
-                                className="text-indigo-600 hover:text-indigo-900 mr-3"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => handleDeleteProduct(product.id)}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                Delete
-                              </button>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => handleSelectProduct(product)}
+                                  className="text-emerald-600 hover:text-emerald-800 font-medium transition-colors hover:underline"
+                                >
+                                  Edit
+                                </button>
+                                <span className="text-slate-300">|</span>
+                                <button
+                                  onClick={() => handleDeleteProduct(product.id)}
+                                  className="text-red-600 hover:text-red-800 font-medium transition-colors hover:underline"
+                                >
+                                  Delete
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -314,17 +339,20 @@ const ProductManagement = () => {
             </div>
             
             {/* Product Edit/Create Form */}
-            <div className="bg-white rounded-lg shadow">
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20">
               <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4">
+                <h2 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
+                  <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11 15H9v-2l8.586-8.586z" />
+                  </svg>
                   {isCreating ? 'Add New Product' : isEditing ? 'Edit Product' : 'Product Details'}
                 </h2>
                 
                 {(isEditing || isCreating) ? (
-                  <form onSubmit={handleSubmit}>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Product Name
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        Product Name <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -332,34 +360,39 @@ const ProductManagement = () => {
                         value={formData.name}
                         onChange={handleInputChange}
                         required
-                        className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-200 bg-gray-50 placeholder-gray-400 text-gray-700 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                        placeholder="Nom du produit"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-500 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all duration-200"
+                        placeholder="Enter product name"
                       />
                     </div>
                     
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Category
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        Category <span className="text-red-500">*</span>
                       </label>
-                      <select
-                        name="category"
-                        value={formData.category}
-                        onChange={handleInputChange}
-                        required
-                        className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-700 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                      >
-                        <option value="">Select a category</option>
-                        {categories.map((category) => (
-                          <option key={category.id} value={category.id}>
-                            {category.name}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="relative">
+                        <select
+                          name="category"
+                          value={formData.category}
+                          onChange={handleInputChange}
+                          required
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all duration-200 appearance-none"
+                        >
+                          <option value="">Select a category</option>
+                          {categories.map((category) => (
+                            <option key={category.id} value={category.id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
+                        <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
                     </div>
                     
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Description
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        Description <span className="text-red-500">*</span>
                       </label>
                       <textarea
                         name="description"
@@ -367,49 +400,55 @@ const ProductManagement = () => {
                         onChange={handleInputChange}
                         required
                         rows="3"
-                        className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-200 bg-gray-50 placeholder-gray-400 text-gray-700 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                        placeholder="Description"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-500 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all duration-200 resize-none"
+                        placeholder="Enter product description"
                       ></textarea>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Price ($)
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                          Price ($) <span className="text-red-500">*</span>
                         </label>
-                        <input
-                          type="number"
-                          name="price"
-                          value={formData.price}
-                          onChange={handleInputChange}
-                          required
-                          min="0"
-                          step="0.01"
-                          className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-200 bg-gray-50 placeholder-gray-400 text-gray-700 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                          placeholder="Prix"
-                        />
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 font-medium">$</span>
+                          <input
+                            type="number"
+                            name="price"
+                            value={formData.price}
+                            onChange={handleInputChange}
+                            required
+                            min="0"
+                            step="0.01"
+                            className="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-500 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all duration-200"
+                            placeholder="0.00"
+                          />
+                        </div>
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">
                           Discount Price ($)
                         </label>
-                        <input
-                          type="number"
-                          name="discount_price"
-                          value={formData.discount_price}
-                          onChange={handleInputChange}
-                          min="0"
-                          step="0.01"
-                          className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-200 bg-gray-50 placeholder-gray-400 text-gray-700 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                          placeholder="Prix promotionnel"
-                        />
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 font-medium">$</span>
+                          <input
+                            type="number"
+                            name="discount_price"
+                            value={formData.discount_price}
+                            onChange={handleInputChange}
+                            min="0"
+                            step="0.01"
+                            className="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-500 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all duration-200"
+                            placeholder="0.00"
+                          />
+                        </div>
                       </div>
                     </div>
                     
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Stock
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        Stock <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="number"
@@ -418,13 +457,13 @@ const ProductManagement = () => {
                         onChange={handleInputChange}
                         required
                         min="0"
-                        className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-200 bg-gray-50 placeholder-gray-400 text-gray-700 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                        placeholder="Stock"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-500 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all duration-200"
+                        placeholder="Enter stock quantity"
                       />
                     </div>
                     
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
                         Product Image
                       </label>
                       <input
@@ -432,52 +471,55 @@ const ProductManagement = () => {
                         name="image"
                         onChange={handleInputChange}
                         accept="image/*"
-                        className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-700 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all duration-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
                       />
                       
                       {previewImage && (
-                        <div className="mt-2">
+                        <div className="mt-4">
                           <img
                             src={previewImage}
                             alt="Preview"
-                            className="h-32 w-32 object-cover rounded-md"
+                            className="h-32 w-32 object-cover rounded-xl shadow-md border border-slate-200"
                           />
                         </div>
                       )}
                     </div>
                     
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
                         Status
                       </label>
-                      <select
-                        name="status"
-                        value={formData.status}
-                        onChange={handleInputChange}
-                        className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-700 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                      >
-                        <option value="available">Available</option>
-                        <option value="unavailable">Unavailable</option>
-                      </select>
-                    </div>
-                    
-                    <div className="mb-6">
-                      <div className="flex items-center">
-                        <input
-                          id="featured"
-                          name="featured"
-                          type="checkbox"
-                          checked={formData.featured}
+                      <div className="relative">
+                        <select
+                          name="status"
+                          value={formData.status}
                           onChange={handleInputChange}
-                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                        />
-                        <label htmlFor="featured" className="ml-2 block text-sm text-gray-900">
-                          Featured Product
-                        </label>
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all duration-200 appearance-none"
+                        >
+                          <option value="available">Available</option>
+                          <option value="unavailable">Unavailable</option>
+                        </select>
+                        <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
                       </div>
                     </div>
                     
-                    <div className="flex justify-end">
+                    <div className="flex items-center p-4 bg-slate-50 rounded-xl">
+                      <input
+                        id="featured"
+                        name="featured"
+                        type="checkbox"
+                        checked={formData.featured}
+                        onChange={handleInputChange}
+                        className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300 rounded"
+                      />
+                      <label htmlFor="featured" className="ml-3 text-sm font-medium text-slate-700">
+                        Featured Product
+                      </label>
+                    </div>
+                    
+                    <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
                       <button
                         type="button"
                         onClick={() => {
@@ -486,22 +528,37 @@ const ProductManagement = () => {
                           setSelectedProduct(null);
                           resetForm();
                         }}
-                        className="mr-3 bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-all duration-200 border border-slate-200"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
                         disabled={loading}
-                        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
-                        {loading ? 'Saving...' : isCreating ? 'Create Product' : 'Save Changes'}
+                        {loading ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            {isCreating ? 'Create Product' : 'Save Changes'}
+                          </>
+                        )}
                       </button>
                     </div>
                   </form>
                 ) : (
-                  <div className="text-center text-gray-500">
-                    <p>Select a product to edit or click 'Add New Product'</p>
+                  <div className="text-center py-12">
+                    <svg className="mx-auto h-12 w-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4.5M20 7v10l-8 4.5M4 7v10l-8 4.5m8-4.5v10" />
+                    </svg>
+                    <p className="mt-4 text-slate-600 font-medium">Select a product to edit or click 'Add New Product'</p>
                   </div>
                 )}
               </div>

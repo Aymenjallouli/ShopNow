@@ -17,8 +17,10 @@ const Cart = () => {
   const { isAuthenticated } = useSelector((state) => state.auth);
   
   useEffect(() => {
-    dispatch(fetchCart());
-  }, [dispatch]);
+    if (isAuthenticated) {
+      dispatch(fetchCart());
+    }
+  }, [dispatch, isAuthenticated]);
   
   const handleQuantityChange = (itemId, quantity) => {
     if (quantity < 1) return;
@@ -47,135 +49,210 @@ const Cart = () => {
   
   if (items.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Your Cart is Empty</h1>
-          <p className="text-gray-600 mb-8">Looks like you haven't added any products to your cart yet.</p>
-          <Link
-            to="/"
-            className="inline-block bg-indigo-600 text-white px-6 py-3 rounded-md font-medium hover:bg-indigo-700"
-          >
-            Start Shopping
-          </Link>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-emerald-50">
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center max-w-md mx-auto">
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
+              <div className="w-20 h-20 bg-gradient-to-r from-emerald-100 to-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+              </div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-slate-800 bg-clip-text text-transparent mb-4">
+                Your Cart is Empty
+              </h1>
+              <p className="text-slate-600 mb-8 leading-relaxed">
+                Looks like you haven't added any products to your cart yet. Start exploring our amazing products!
+              </p>
+              <Link
+                to="/"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold rounded-xl shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-300 transform hover:scale-105 transition-all duration-200"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                Start Shopping
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
-  
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Your Cart</h1>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <ul className="divide-y divide-gray-200">
-              {items.map((item) => (
-                <li key={item.id} className="p-4 sm:p-6">
-                  <div className="flex flex-col sm:flex-row">
-                    <div className="flex-shrink-0 w-full sm:w-24 h-24 bg-gray-100 rounded-md overflow-hidden mb-4 sm:mb-0">
-                      <img
-                        src={item.product.images && item.product.images.length > 0 
-                          ? item.product.images[0].image 
-                          : '/placeholder.jpg'}
-                        alt={item.product.name}
-                        className="w-full h-full object-center object-cover"
-                      />
-                    </div>
-                    
-                    <div className="flex-1 sm:ml-6">
-                      <div className="flex justify-between">
-                        <div>
-                          <h3 className="text-lg font-medium text-gray-900">
-                            <Link to={`/products/${item.product.id}`} className="hover:text-indigo-600">
-                              {item.product.name}
-                            </Link>
-                          </h3>
-                          <p className="mt-1 text-sm text-gray-500">
-                            ${item.product.price.toFixed(2)}
-                          </p>
-                        </div>
-                        <p className="text-lg font-medium text-gray-900">
-                          ${(item.product.price * item.quantity).toFixed(2)}
-                        </p>
-                      </div>
-                      
-                      <div className="mt-4 flex items-center justify-between">
-                        <div className="flex items-center border border-gray-300 rounded">
-                          <button
-                            type="button"
-                            className="p-2 text-gray-600 hover:text-gray-900"
-                            onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                            disabled={item.quantity <= 1}
-                          >
-                            -
-                          </button>
-                          <span className="px-4 py-2 text-gray-900">{item.quantity}</span>
-                          <button
-                            type="button"
-                            className="p-2 text-gray-600 hover:text-gray-900"
-                            onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                            disabled={item.quantity >= item.product.stock}
-                          >
-                            +
-                          </button>
-                        </div>
-                        
-                        <button
-                          type="button"
-                          className="text-red-600 hover:text-red-800"
-                          onClick={() => handleRemoveItem(item.id)}
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-emerald-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-slate-800 bg-clip-text text-transparent mb-4">
+            Shopping Cart
+          </h1>
+          <p className="text-slate-600 text-lg">
+            Review your items and proceed to checkout when ready
+          </p>
         </div>
         
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow p-6 sticky top-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Order Summary</h2>
-            
-            <div className="flow-root">
-              <dl className="text-sm">
-                <div className="py-2 flex items-center justify-between">
-                  <dt className="text-gray-600">Subtotal ({totalItems} items)</dt>
-                  <dd className="font-medium text-gray-900">${totalPrice.toFixed(2)}</dd>
-                </div>
-                <div className="py-2 flex items-center justify-between">
-                  <dt className="text-gray-600">Shipping</dt>
-                  <dd className="font-medium text-gray-900">Calculated at checkout</dd>
-                </div>
-                <div className="py-2 flex items-center justify-between">
-                  <dt className="text-gray-600">Tax</dt>
-                  <dd className="font-medium text-gray-900">Calculated at checkout</dd>
-                </div>
-                <div className="pt-4 flex items-center justify-between border-t border-gray-200">
-                  <dt className="text-base font-medium text-gray-900">Order total</dt>
-                  <dd className="text-base font-medium text-gray-900">${totalPrice.toFixed(2)}</dd>
-                </div>
-              </dl>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Cart Items */}
+          <div className="lg:col-span-2">
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+              <div className="p-6 border-b border-slate-200/50">
+                <h2 className="text-xl font-semibold text-slate-800">Cart Items ({items.length})</h2>
+              </div>
+              <ul className="divide-y divide-slate-200/50">
+                {items.map((item) => (
+                  <li key={item.id} className="p-6 hover:bg-slate-50/50 transition-colors duration-200">
+                    <div className="flex flex-col sm:flex-row gap-6">
+                      {/* Product Image */}
+                      <div className="flex-shrink-0 w-full sm:w-32 h-32 bg-gradient-to-br from-slate-100 to-emerald-50 rounded-xl overflow-hidden shadow-md">
+                        <img
+                          src={
+                            item.product.images && item.product.images.length > 0 
+                              ? (item.product.images[0].image || item.product.images[0])
+                              : item.product.image || '/placeholder.svg'
+                          }
+                          alt={item.product.name}
+                          className="w-full h-full object-center object-cover hover:scale-105 transition-transform duration-200"
+                          onError={(e) => {
+                            e.target.src = '/placeholder.svg';
+                            e.target.onerror = null;
+                          }}
+                        />
+                      </div>
+                      
+                      {/* Product Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-xl font-semibold text-slate-800 mb-2">
+                              <Link 
+                                to={`/products/${item.product.id}`} 
+                                className="hover:text-emerald-600 transition-colors duration-200"
+                              >
+                                {item.product.name}
+                              </Link>
+                            </h3>
+                            <p className="text-slate-500 text-sm mb-1">
+                              Unit Price: ${typeof item.product.price === 'number' ? item.product.price.toFixed(2) : parseFloat(item.product.price || 0).toFixed(2)}
+                            </p>
+                            <p className="text-sm text-slate-400">
+                              In Stock: {item.product.stock} items
+                            </p>
+                          </div>
+                          
+                          {/* Total Price */}
+                          <div className="text-right ml-4">
+                            <p className="text-2xl font-bold text-emerald-600">
+                              ${typeof item.total_price === 'number' ? item.total_price.toFixed(2) : parseFloat(item.total_price || 0).toFixed(2)}
+                            </p>
+                            <p className="text-sm text-slate-500">Total</p>
+                          </div>
+                        </div>
+                        
+                        {/* Quantity Controls and Remove Button */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <label className="text-sm font-medium text-slate-600 mr-4">Quantity:</label>
+                            <div className="flex items-center bg-white/80 border border-slate-200 rounded-lg shadow-sm">
+                              <button
+                                type="button"
+                                className="p-2 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-l-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                                disabled={item.quantity <= 1}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                                </svg>
+                              </button>
+                              <span className="px-4 py-2 text-slate-800 font-medium min-w-[3rem] text-center border-x border-slate-200">
+                                {item.quantity}
+                              </span>
+                              <button
+                                type="button"
+                                className="p-2 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-r-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                                disabled={item.quantity >= item.product.stock}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                          
+                          {/* Remove Button */}
+                          <button
+                            type="button"
+                            className="flex items-center px-4 py-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors duration-200 group"
+                            onClick={() => handleRemoveItem(item.id)}
+                          >
+                            <TrashIcon className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform duration-200" />
+                            <span className="text-sm font-medium">Remove</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
-            
-            <div className="mt-6">
+          </div>
+          
+          {/* Order Summary */}
+          <div className="lg:col-span-1">
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 sticky top-6">
+              <h2 className="text-2xl font-bold text-slate-800 mb-6">Order Summary</h2>
+              
+              <div className="space-y-4 mb-6">
+                <div className="flex items-center justify-between py-3 border-b border-slate-200/50">
+                  <span className="text-slate-600">Subtotal ({totalItems} items)</span>
+                  <span className="font-semibold text-slate-800">
+                    ${typeof totalPrice === 'number' ? totalPrice.toFixed(2) : parseFloat(totalPrice || 0).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-3 border-b border-slate-200/50">
+                  <span className="text-slate-600">Shipping</span>
+                  <span className="text-slate-500 text-sm">Calculated at checkout</span>
+                </div>
+                <div className="flex items-center justify-between py-3 border-b border-slate-200/50">
+                  <span className="text-slate-600">Tax</span>
+                  <span className="text-slate-500 text-sm">Calculated at checkout</span>
+                </div>
+                <div className="flex items-center justify-between py-4 border-t-2 border-emerald-200">
+                  <span className="text-xl font-bold text-slate-800">Total</span>
+                  <span className="text-2xl font-bold text-emerald-600">
+                    ${typeof totalPrice === 'number' ? totalPrice.toFixed(2) : parseFloat(totalPrice || 0).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+              
+              {/* Checkout Button */}
               <button
                 type="button"
-                className="w-full bg-indigo-600 border border-transparent rounded-md py-3 px-4 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-300 transform hover:scale-105 transition-all duration-200 mb-4"
                 onClick={handleCheckout}
               >
-                Proceed to Checkout
+                <span className="flex items-center justify-center">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                  Proceed to Checkout
+                </span>
               </button>
-            </div>
-            
-            <div className="mt-4 text-center">
-              <Link to="/" className="text-sm text-indigo-600 hover:text-indigo-700">
-                Continue Shopping
-              </Link>
+              
+              {/* Continue Shopping */}
+              <div className="text-center">
+                <Link 
+                  to="/" 
+                  className="inline-flex items-center text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  Continue Shopping
+                </Link>
+              </div>
             </div>
           </div>
         </div>

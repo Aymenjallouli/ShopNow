@@ -16,6 +16,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -48,6 +53,10 @@ INSTALLED_APPS = [
     'accounts',
     'products',
     'categories',
+    'cart',
+    'orders',
+    'payments',
+    'reviews',
     'wishlist',
 ]
 
@@ -160,3 +169,19 @@ REST_FRAMEWORK = {
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Stripe Configuration
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+
+# D17 Configuration (Tunisie)
+D17_API_KEY = os.getenv('D17_API_KEY')
+D17_API_URL = os.getenv('D17_API_URL', 'https://api.d17.tn/v1')
+
+# CORS Configuration pour le frontend
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+CORS_ALLOW_ALL_ORIGINS = DEBUG  # Seulement en développement

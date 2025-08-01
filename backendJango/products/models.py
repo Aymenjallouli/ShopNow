@@ -12,6 +12,7 @@ class Product(models.Model):
     stock = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
     image = models.URLField(blank=True, null=True)  # URL Cloudinary
+    category = models.ForeignKey('categories.Category', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

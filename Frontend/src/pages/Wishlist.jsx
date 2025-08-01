@@ -31,16 +31,32 @@ const Wishlist = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="container mx-auto py-8 px-4">
-        <h1 className="text-2xl font-bold mb-4">Wishlist</h1>
-        <div className="bg-blue-50 p-4 rounded">
-          <p className="text-center">
-            Please{' '}
-            <Link to="/login" className="text-blue-600 hover:underline">
-              login
-            </Link>{' '}
-            to view your wishlist.
-          </p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-emerald-50">
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center max-w-md mx-auto">
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
+              <div className="w-20 h-20 bg-gradient-to-r from-emerald-100 to-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-slate-800 bg-clip-text text-transparent mb-4">
+                Login Required
+              </h1>
+              <p className="text-slate-600 mb-8 leading-relaxed">
+                Please login to view and manage your wishlist items.
+              </p>
+              <Link
+                to="/login"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold rounded-xl shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-300 transform hover:scale-105 transition-all duration-200"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                Login Now
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -55,93 +71,153 @@ const Wishlist = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">My Wishlist</h1>
-        {items.length > 0 && (
-          <button
-            onClick={handleClearWishlist}
-            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-          >
-            Clear Wishlist
-          </button>
-        )}
-      </div>
-
-      {items.length === 0 ? (
-        <div className="bg-gray-50 p-8 rounded text-center">
-          <p className="text-gray-600 mb-4">Your wishlist is empty.</p>
-          <Link
-            to="/"
-            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-          >
-            Continue Shopping
-          </Link>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-emerald-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-slate-800 bg-clip-text text-transparent mb-4">
+            My Wishlist
+          </h1>
+          <p className="text-slate-600 text-lg">
+            Your favorite products saved for later
+          </p>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow"
+
+        {/* Actions Bar */}
+        {items.length > 0 && (
+          <div className="flex justify-between items-center mb-8">
+            <div className="text-slate-600">
+              <span className="font-medium">{items.length}</span> item{items.length !== 1 ? 's' : ''} in your wishlist
+            </div>
+            <button
+              onClick={handleClearWishlist}
+              className="flex items-center px-4 py-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors duration-200 group"
             >
-              <Link to={`/product/${item.product.id}`}>
-                <img
-                  src={item.product.image}
-                  alt={item.product.name}
-                  className="w-full h-48 object-cover"
-                />
+              <svg className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Clear Wishlist
+            </button>
+          </div>
+        )}
+
+        {items.length === 0 ? (
+          <div className="text-center max-w-md mx-auto">
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
+              <div className="w-20 h-20 bg-gradient-to-r from-emerald-100 to-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </div>
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-slate-800 bg-clip-text text-transparent mb-4">
+                Your Wishlist is Empty
+              </h2>
+              <p className="text-slate-600 mb-8 leading-relaxed">
+                Start adding products to your wishlist by clicking the heart icon on products you love!
+              </p>
+              <Link
+                to="/"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold rounded-xl shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-300 transform hover:scale-105 transition-all duration-200"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                Continue Shopping
               </Link>
-              <div className="p-4">
-                <Link
-                  to={`/product/${item.product.id}`}
-                  className="text-lg font-semibold hover:text-blue-600 block mb-2"
-                >
-                  {item.product.name}
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {items.map((item) => (
+              <div
+                key={item.id}
+                className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden hover:shadow-2xl hover:scale-105 transition-all duration-300 group"
+              >
+                <Link to={`/product/${item.product.id}`} className="block relative">
+                  <div className="aspect-w-16 aspect-h-12 bg-gradient-to-br from-slate-100 to-emerald-50">
+                    <img
+                      src={
+                        item.product.images && item.product.images.length > 0 
+                          ? (item.product.images[0].image || item.product.images[0])
+                          : item.product.image || '/placeholder.svg'
+                      }
+                      alt={item.product.name}
+                      className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
+                      onError={(e) => {
+                        e.target.src = '/placeholder.svg';
+                        e.target.onerror = null;
+                      }}
+                    />
+                  </div>
+                  <div className="absolute top-4 right-4">
+                    <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
+                      <svg className="w-5 h-5 text-rose-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                    </div>
+                  </div>
                 </Link>
-                <p className="text-gray-600 mb-2 line-clamp-2">{item.product.description}</p>
-                <div className="flex justify-between items-center mt-4">
-                  <span className="text-xl font-bold">
-                    ${item.product.discount_price || item.product.price}
-                  </span>
-                  {item.product.discount_price && (
-                    <span className="text-sm text-gray-500 line-through">
-                      ${item.product.price}
-                    </span>
-                  )}
-                </div>
-                <div className="flex mt-4 space-x-2">
-                  <button
-                    onClick={() => handleAddToCart(item.product.id)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded flex-1 hover:bg-blue-700"
+                
+                <div className="p-6">
+                  <Link
+                    to={`/product/${item.product.id}`}
+                    className="block mb-3"
                   >
-                    Add to Cart
-                  </button>
-                  <button
-                    onClick={() => handleRemoveFromWishlist(item.id)}
-                    className="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
+                    <h3 className="text-xl font-semibold text-slate-800 group-hover:text-emerald-600 transition-colors duration-200 line-clamp-2">
+                      {item.product.name}
+                    </h3>
+                  </Link>
+                  
+                  <p className="text-slate-500 text-sm mb-4 line-clamp-2 leading-relaxed">
+                    {item.product.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-2xl font-bold text-emerald-600">
+                        ${typeof (item.product.discount_price || item.product.price) === 'number' 
+                          ? (item.product.discount_price || item.product.price).toFixed(2) 
+                          : parseFloat(item.product.discount_price || item.product.price || 0).toFixed(2)}
+                      </span>
+                      {item.product.discount_price && (
+                        <span className="text-sm text-slate-400 line-through">
+                          ${typeof item.product.price === 'number' ? item.product.price.toFixed(2) : parseFloat(item.product.price || 0).toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+                    {item.product.discount_price && (
+                      <div className="bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                        SALE
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => handleAddToCart(item.product.id)}
+                      className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-300 transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>
-                  </button>
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                      </svg>
+                      Add to Cart
+                    </button>
+                    
+                    <button
+                      onClick={() => handleRemoveFromWishlist(item.id)}
+                      className="p-3 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors duration-200 group"
+                    >
+                      <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

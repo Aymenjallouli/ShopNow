@@ -11,7 +11,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'id', 'username', 'email', 'password', 'password2',
-            'first_name', 'last_name', 'phone_number', 'address', 'city', 'state', 'country', 'zip_code', 'date_of_birth'
+            'first_name', 'last_name', 'phone_number', 'address', 'city', 'state', 'country', 'zip_code', 'date_of_birth', 'is_staff'
         )
 
     def validate(self, data):
@@ -37,5 +37,50 @@ class RegisterSerializer(serializers.ModelSerializer):
             country=validated_data.get('country'),
             zip_code=validated_data.get('zip_code'),
             date_of_birth=validated_data.get('date_of_birth'),
+            is_staff=validated_data.get('is_staff', False),
         )
         return user
+
+    def update(self, instance, validated_data):
+        # Remove password fields for updates (handle separately if needed)
+        validated_data.pop('password', None)
+        validated_data.pop('password2', None)
+        
+        # Update user fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        instance.save()
+        return instance
+
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    """Serializer for admin user management with status field"""
+    status = serializers.CharField(required=False)
+    
+    class Meta:
+        model = User
+        fields = (
+            'id', 'username', 'email', 'first_name', 'last_name', 
+            'phone_number', 'address', 'city', 'state', 'country', 
+            'zip_code', 'date_of_birth', 'is_staff', 'is_active', 'status'
+        )
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        # Map is_active to status for frontend compatibility
+        representation['status'] = 'active' if instance.is_active else 'inactive'
+        return representation
+    
+    def update(self, instance, validated_data):
+        # Handle status field conversion
+        if 'status' in validated_data:
+            status = validated_data.pop('status')
+            validated_data['is_active'] = status == 'active'
+        
+        # Update user fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        instance.save()
+        return instance

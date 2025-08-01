@@ -27,6 +27,11 @@ db.sqlite3
 db.sqlite3-journal
 media
 
+# Environment variables (contains secrets)
+.env
+.env.*
+!.env.example
+
 # Virtual Environment
 venv/
 ENV/

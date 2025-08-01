@@ -39,20 +39,34 @@ const UserManagement = () => {
     fetchUsers();
   }, []);
 
+  // Update form when selectedUser changes
+  useEffect(() => {
+    if (selectedUser && isEditing) {
+      setFormData({
+        first_name: selectedUser.first_name || '',
+        last_name: selectedUser.last_name || '',
+        email: selectedUser.email || '',
+        username: selectedUser.username || '',
+        status: selectedUser.status || 'active',
+        is_staff: Boolean(selectedUser.is_staff),
+      });
+    }
+  }, [selectedUser, isEditing]);
+
   // Redirect if not admin
   if (!isAuthenticated || !user || !user.is_staff) {
     return <Navigate to="/" replace />;
   }
 
-  const handleSelectUser = (user) => {
-    setSelectedUser(user);
+  const handleSelectUser = (selectedUserData) => {
+    setSelectedUser(selectedUserData);
     setFormData({
-      first_name: user.first_name || '',
-      last_name: user.last_name || '',
-      email: user.email || '',
-      username: user.username || '',
-      status: user.status || 'active',
-      is_staff: user.is_staff,
+      first_name: selectedUserData.first_name || '',
+      last_name: selectedUserData.last_name || '',
+      email: selectedUserData.email || '',
+      username: selectedUserData.username || '',
+      status: selectedUserData.status || 'active',
+      is_staff: Boolean(selectedUserData.is_staff),
     });
     setIsEditing(true);
   };
@@ -111,99 +125,127 @@ const UserManagement = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <Sidebar />
       
       <div className="flex-1 overflow-x-hidden overflow-y-auto">
         <main className="p-6">
-          <h1 className="text-3xl font-semibold text-gray-800">User Management</h1>
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+              User Management
+            </h1>
+            <p className="text-slate-600 mt-2">Manage users, permissions, and account status.</p>
+          </div>
           
           {error && (
-            <div className="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {error}
+            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl shadow-sm">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {error}
+              </div>
             </div>
           )}
           
-          <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* User List */}
-            <div className="col-span-2 bg-white rounded-lg shadow">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Users</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Users List */}
+            <div className="lg:col-span-2">
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200/50">
+                <div className="px-6 py-4 border-b border-slate-200/50">
+                  <h2 className="text-xl font-bold text-slate-900">All Users</h2>
+                  <p className="text-sm text-slate-600 mt-1">Click on a user to edit their details</p>
+                </div>
                 
-                {loading && !users.length ? (
-                  <p className="text-gray-500">Loading users...</p>
+                {loading ? (
+                  <div className="flex justify-center items-center h-64">
+                    <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Name
+                    <table className="min-w-full">
+                      <thead>
+                        <tr className="border-b border-slate-200">
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                            User
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                             Email
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Role
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                             Status
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                            Role
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                             Actions
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody className="divide-y divide-slate-100">
                         {users.map((user) => (
-                          <tr key={user.id} className={selectedUser?.id === user.id ? 'bg-indigo-50' : ''}>
+                          <tr
+                            key={user.id}
+                            className={`hover:bg-emerald-50 transition-colors duration-150 ${
+                              selectedUser?.id === user.id ? 'bg-emerald-50 ring-2 ring-emerald-200' : ''
+                            }`}
+                          >
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
-                                <div className="ml-4">
-                                  <div className="text-sm font-medium text-gray-900">
-                                    {user.first_name} {user.last_name}
+                                <div className="flex-shrink-0 h-10 w-10">
+                                  <div className="h-10 w-10 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 flex items-center justify-center">
+                                    <span className="text-sm font-medium text-white">
+                                      {(user.first_name || user.username || user.email || 'U').charAt(0).toUpperCase()}
+                                    </span>
                                   </div>
-                                  <div className="text-sm text-gray-500">
-                                    {user.username}
+                                </div>
+                                <div className="ml-4">
+                                  <div className="text-sm font-medium text-slate-900">
+                                    {user.first_name && user.last_name
+                                      ? `${user.first_name} ${user.last_name}`
+                                      : user.username || 'N/A'
+                                    }
+                                  </div>
+                                  <div className="text-sm text-slate-500">
+                                    ID: {user.id}
                                   </div>
                                 </div>
                               </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">{user.email}</div>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                              {user.email}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              {user.is_staff ? (
-                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
-                                  Admin
-                                </span>
-                              ) : (
-                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                  User
-                                </span>
-                              )}
+                              <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                user.status === 'active'
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : user.status === 'inactive'
+                                  ? 'bg-red-100 text-red-800'
+                                  : 'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {user.status || 'Active'}
+                              </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              {user.status === 'active' ? (
-                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                  Active
-                                </span>
-                              ) : (
-                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                  Inactive
-                                </span>
-                              )}
+                              <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                user.is_staff
+                                  ? 'bg-slate-100 text-slate-800'
+                                  : 'bg-emerald-100 text-emerald-800'
+                              }`}>
+                                {user.is_staff ? 'Admin' : 'User'}
+                              </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                               <button
                                 onClick={() => handleSelectUser(user)}
-                                className="text-indigo-600 hover:text-indigo-900 mr-3"
+                                className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 rounded-lg text-xs font-medium transition-colors duration-200"
                               >
                                 Edit
                               </button>
                               <button
                                 onClick={() => handleDeleteUser(user.id)}
-                                className="text-red-600 hover:text-red-900"
+                                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-medium transition-colors duration-200"
                               >
                                 Delete
                               </button>
@@ -216,127 +258,187 @@ const UserManagement = () => {
                 )}
               </div>
             </div>
-            
-            {/* User Edit Form */}
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4">
-                  {isEditing ? 'Edit User' : 'User Details'}
-                </h2>
+
+            {/* Edit User Form */}
+            <div className="lg:col-span-1">
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200/50 sticky top-6">
+                <div className="px-6 py-4 border-b border-slate-200/50">
+                  <h2 className="text-xl font-bold text-slate-900">
+                    {isEditing ? 'Edit User' : 'Select a User'}
+                  </h2>
+                  <p className="text-sm text-slate-600 mt-1">
+                    {isEditing ? 'Update user information and permissions' : 'Choose a user from the list to edit'}
+                  </p>
+                </div>
                 
-                {isEditing ? (
-                  <form onSubmit={handleSubmit}>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        First Name
-                      </label>
-                      <input
-                        type="text"
-                        name="first_name"
-                        value={formData.first_name}
-                        onChange={handleInputChange}
-                        className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-200 bg-gray-50 placeholder-gray-400 text-gray-700 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                        placeholder="Prénom"
-                      />
+                {!isEditing ? (
+                  <div className="p-6 text-center">
+                    <div className="mx-auto h-12 w-12 text-slate-400">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    <p className="mt-4 text-sm text-slate-500">
+                      Select a user from the table to view and edit their details.
+                    </p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                    {/* Debug: Show selected user data */}
+                    {selectedUser && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4">
+                        <p className="text-xs font-semibold text-blue-800 mb-2">Debug - Données utilisateur:</p>
+                        <pre className="text-xs text-blue-700 overflow-x-auto">
+                          {JSON.stringify(selectedUser, null, 2)}
+                        </pre>
+                      </div>
+                    )}
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                          Prénom
+                        </label>
+                        <input
+                          type="text"
+                          name="first_name"
+                          value={formData.first_name}
+                          onChange={handleInputChange}
+                          placeholder="Entrez le prénom"
+                          className="w-full px-4 py-3 rounded-xl border-slate-200 bg-slate-50/50 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:bg-white text-sm transition-all duration-200"
+                        />
+                        {/* Debug: Show current value */}
+                        {selectedUser && (
+                          <p className="text-xs text-slate-400 mt-1">
+                            Valeur actuelle: "{formData.first_name}" | DB: "{selectedUser.first_name}"
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                          Nom
+                        </label>
+                        <input
+                          type="text"
+                          name="last_name"
+                          value={formData.last_name}
+                          onChange={handleInputChange}
+                          placeholder="Entrez le nom"
+                          className="w-full px-4 py-3 rounded-xl border-slate-200 bg-slate-50/50 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:bg-white text-sm transition-all duration-200"
+                        />
+                        {/* Debug: Show current value */}
+                        {selectedUser && (
+                          <p className="text-xs text-slate-400 mt-1">
+                            Valeur actuelle: "{formData.last_name}" | DB: "{selectedUser.last_name}"
+                          </p>
+                        )}
+                      </div>
                     </div>
                     
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Last Name
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        Adresse Email
                       </label>
-                      <input
-                        type="text"
-                        name="last_name"
-                        value={formData.last_name}
-                        onChange={handleInputChange}
-                        className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-200 bg-gray-50 placeholder-gray-400 text-gray-700 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                        placeholder="Nom"
-                      />
+                      <div className="relative">
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          placeholder="utilisateur@exemple.com"
+                          className="w-full px-4 py-3 pl-10 rounded-xl border-slate-200 bg-slate-50/50 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:bg-white text-sm transition-all duration-200"
+                        />
+                        <svg className="absolute left-3 top-3.5 h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                        </svg>
+                      </div>
                     </div>
                     
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Email
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        Nom d'utilisateur
                       </label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-200 bg-gray-50 placeholder-gray-400 text-gray-700 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                        placeholder="Email"
-                      />
+                      <div className="relative">
+                        <input
+                          type="text"
+                          name="username"
+                          value={formData.username}
+                          onChange={handleInputChange}
+                          placeholder="nom_utilisateur"
+                          className="w-full px-4 py-3 pl-10 rounded-xl border-slate-200 bg-slate-50/50 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:bg-white text-sm transition-all duration-200"
+                        />
+                        <svg className="absolute left-3 top-3.5 h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
                     </div>
                     
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Username
-                      </label>
-                      <input
-                        type="text"
-                        name="username"
-                        value={formData.username}
-                        onChange={handleInputChange}
-                        className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-200 bg-gray-50 placeholder-gray-400 text-gray-700 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                        placeholder="Nom d'utilisateur"
-                      />
-                    </div>
-                    
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Status
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        Statut du compte
                       </label>
                       <select
                         name="status"
                         value={formData.status}
                         onChange={handleInputChange}
-                        className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-700 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                        className="w-full px-4 py-3 rounded-xl border-slate-200 bg-slate-50/50 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:bg-white text-sm transition-all duration-200"
                       >
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
+                        <option value="active">🟢 Actif</option>
+                        <option value="inactive">🔴 Inactif</option>
+                        <option value="suspended">⏸️ Suspendu</option>
                       </select>
                     </div>
                     
-                    <div className="mb-6">
+                    <div className="bg-slate-50 rounded-xl p-4">
                       <div className="flex items-center">
                         <input
-                          id="is_staff"
-                          name="is_staff"
                           type="checkbox"
+                          name="is_staff"
                           checked={formData.is_staff}
                           onChange={handleInputChange}
-                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                          className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 focus:ring-offset-0"
                         />
-                        <label htmlFor="is_staff" className="ml-2 block text-sm text-gray-900">
-                          Admin
-                        </label>
+                        <div className="ml-3">
+                          <label className="text-sm font-semibold text-slate-700">
+                            Privilèges administrateur
+                          </label>
+                          <p className="text-xs text-slate-500 mt-1">
+                            Accorder l'accès complet au tableau de bord admin
+                          </p>
+                        </div>
                       </div>
                     </div>
                     
-                    <div className="flex justify-end">
+                    <div className="flex justify-end space-x-3 pt-6 border-t border-slate-200">
                       <button
                         type="button"
                         onClick={() => {
                           setIsEditing(false);
                           setSelectedUser(null);
                         }}
-                        className="mr-3 bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        className="px-6 py-3 text-sm font-semibold text-slate-700 bg-white border-2 border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 shadow-sm"
                       >
-                        Cancel
+                        Annuler
                       </button>
                       <button
                         type="submit"
                         disabled={loading}
-                        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/25"
                       >
-                        {loading ? 'Saving...' : 'Save Changes'}
+                        {loading ? (
+                          <div className="flex items-center">
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Sauvegarde...
+                          </div>
+                        ) : (
+                          'Sauvegarder les modifications'
+                        )}
                       </button>
                     </div>
                   </form>
-                ) : (
-                  <div className="text-center text-gray-500">
-                    <p>Select a user to edit</p>
-                  </div>
                 )}
               </div>
             </div>
