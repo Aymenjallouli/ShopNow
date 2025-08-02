@@ -89,8 +89,10 @@ const ProductDetail = () => {
         {/* Product Info */}
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{name}</h1>
-            <p className="text-sm text-gray-500 mt-1">Category: {category?.name}</p>
+            <h1 className="text-3xl font-bold text-slate-800">{name}</h1>
+            <p className="text-sm text-emerald-600 bg-emerald-50 inline-block px-2 py-1 rounded-md mt-2">
+              {category?.name || 'Uncategorized'}
+            </p>
           </div>
           
           <div className="flex items-center justify-between">
@@ -99,12 +101,16 @@ const ProductDetail = () => {
                 <StarIcon
                   key={star}
                   className={`h-5 w-5 ${
-                    star < Math.round(rating) ? 'text-yellow-400' : 'text-gray-300'
+                    star < Math.round(rating || 0) ? 'text-amber-400' : 'text-slate-300'
                   }`}
                 />
               ))}
-              <p className="ml-2 text-sm text-gray-500">
-                {reviews?.length} {reviews?.length === 1 ? 'review' : 'reviews'}
+              <p className="ml-2 text-sm text-slate-600">
+                <span className="font-medium">{rating ? rating.toFixed(1) : '0.0'}</span>
+                <span className="mx-1">•</span>
+                <span className="hover:underline cursor-pointer" onClick={() => document.getElementById('reviews-section').scrollIntoView({ behavior: 'smooth' })}>
+                  {reviews?.length || 0} avis
+                </span>
               </p>
             </div>
             <WishlistButton productId={id} />
@@ -112,7 +118,10 @@ const ProductDetail = () => {
           
           <div>
             <h2 className="sr-only">Product information</h2>
-            <p className="text-3xl font-bold text-gray-900">${price.toFixed(2)}</p>
+            <p className="text-3xl font-bold text-slate-900 bg-slate-50 px-4 py-2 rounded-lg inline-block">
+              <span className="text-emerald-600">$</span>
+              <span>{typeof price === 'number' ? price.toFixed(2) : parseFloat(price) ? parseFloat(price).toFixed(2) : price}</span>
+            </p>
           </div>
           
           <div>
@@ -124,24 +133,34 @@ const ProductDetail = () => {
           
           <div className="border-t border-gray-200 pt-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-900">Stock Status</h3>
-              <p className={`text-sm font-medium ${stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {stock > 0 ? `In Stock (${stock} available)` : 'Out of Stock'}
-              </p>
+              <h3 className="text-sm font-medium text-slate-700">Stock Status</h3>
+              {stock <= 0 ? (
+                <span className="text-sm font-medium text-rose-600 bg-rose-50 px-2 py-1 rounded-lg">
+                  Out of stock
+                </span>
+              ) : stock <= 5 ? (
+                <span className="text-sm font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">
+                  Low stock ({stock} available)
+                </span>
+              ) : (
+                <span className="text-sm font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">
+                  In stock ({stock} available)
+                </span>
+              )}
             </div>
           </div>
           
           {stock > 0 && (
             <div className="flex items-center space-x-3">
-              <label htmlFor="quantity" className="sr-only">
-                Quantity
+              <label htmlFor="quantity" className="text-sm font-medium text-slate-700">
+                Quantité:
               </label>
               <select
                 id="quantity"
                 name="quantity"
                 value={quantity}
                 onChange={handleQuantityChange}
-                className="rounded-md border border-gray-300 py-1.5 text-base text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+                className="rounded-lg border border-slate-200 py-2 px-3 text-base text-slate-700 focus:border-emerald-500 focus:outline-none focus:ring-emerald-500 bg-slate-50 shadow-sm"
               >
                 {[...Array(Math.min(stock, 10)).keys()].map((x) => (
                   <option key={x + 1} value={x + 1}>
@@ -157,47 +176,55 @@ const ProductDetail = () => {
               type="button"
               onClick={handleAddToCart}
               disabled={stock === 0}
-              className={`flex-1 rounded-md px-4 py-3 text-base font-medium text-white ${
+              className={`flex-1 flex items-center justify-center space-x-2 rounded-xl px-4 py-3 text-base font-semibold transition-all duration-200 ${
                 stock > 0 
-                  ? 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500' 
-                  : 'bg-gray-400 cursor-not-allowed'
+                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-300 transform hover:scale-105' 
+                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
               }`}
             >
-              Add to Cart
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <span>Add to Cart</span>
             </button>
             <button
               type="button"
               onClick={handleBuyNow}
               disabled={stock === 0}
-              className={`flex-1 rounded-md px-4 py-3 text-base font-medium ${
+              className={`flex-1 flex items-center justify-center space-x-2 rounded-xl px-4 py-3 text-base font-semibold transition-all duration-200 ${
                 stock > 0 
-                  ? 'bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-500' 
-                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  ? 'bg-slate-100 hover:bg-slate-200 text-slate-700' 
+                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
               }`}
             >
-              Buy Now
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <span>Buy Now</span>
             </button>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-            <div className="flex items-center space-x-2">
-              <TruckIcon className="h-5 w-5 text-gray-400" />
-              <span className="text-sm text-gray-500">Free shipping over $50</span>
+            <div className="flex items-center space-x-2 bg-slate-50 p-3 rounded-lg">
+              <TruckIcon className="h-5 w-5 text-emerald-500" />
+              <span className="text-sm text-slate-600">Free shipping over $50</span>
             </div>
-            <div className="flex items-center space-x-2">
-              <ArrowPathIcon className="h-5 w-5 text-gray-400" />
-              <span className="text-sm text-gray-500">30-day returns</span>
+            <div className="flex items-center space-x-2 bg-slate-50 p-3 rounded-lg">
+              <ArrowPathIcon className="h-5 w-5 text-emerald-500" />
+              <span className="text-sm text-slate-600">30-day returns</span>
             </div>
-            <div className="flex items-center space-x-2">
-              <ShieldCheckIcon className="h-5 w-5 text-gray-400" />
-              <span className="text-sm text-gray-500">Secure payment</span>
+            <div className="flex items-center space-x-2 bg-slate-50 p-3 rounded-lg">
+              <ShieldCheckIcon className="h-5 w-5 text-emerald-500" />
+              <span className="text-sm text-slate-600">Secure payment</span>
             </div>
           </div>
         </div>
       </div>
       
       {/* Reviews Section */}
-      <ProductReviews productId={id} reviews={reviews || []} />
+      <div id="reviews-section">
+        <ProductReviews productId={id} reviews={reviews || []} />
+      </div>
     </div>
   );
 };

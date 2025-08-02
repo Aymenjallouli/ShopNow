@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import SafeMapboxDeliveryMap from '../components/SafeMapboxDeliveryMap';
+import SimpleDeliveryMap from '../components/SimpleDeliveryMap';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +12,16 @@ const Contact = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [useSimpleMap, setUseSimpleMap] = useState(false);
+
+  // Informations pour ESPRIT comme adresse de livraison
+  const espritShippingInfo = {
+    address: 'ESPRIT School of Engineering',
+    city: 'Ariana',
+    state: 'Tunis',
+    postalCode: '2083',
+    country: 'TN'
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -70,7 +82,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-slate-800 mb-1">Address</h3>
-                      <p className="text-slate-600">123 Commerce Street<br />Business District, City 12345</p>
+                      <p className="text-slate-600">ESPRIT School of Engineering<br />Ariana, Tunis 2083<br />Tunisia</p>
                     </div>
                   </div>
                   
@@ -82,7 +94,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-slate-800 mb-1">Phone</h3>
-                      <p className="text-slate-600">+1 (555) 123-4567</p>
+                      <p className="text-slate-600">+216 71 250 000</p>
                     </div>
                   </div>
                   
@@ -106,7 +118,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-slate-800 mb-1">Business Hours</h3>
-                      <p className="text-slate-600">Monday - Friday: 9:00 AM - 6:00 PM<br />Saturday: 10:00 AM - 4:00 PM<br />Sunday: Closed</p>
+                      <p className="text-slate-600">Monday - Friday: 8:00 AM - 6:00 PM<br />Saturday: 9:00 AM - 2:00 PM<br />Sunday: Closed</p>
                     </div>
                   </div>
                 </div>
@@ -238,14 +250,48 @@ const Contact = () => {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
-            <h2 className="text-3xl font-bold text-slate-800 mb-8 text-center">Find Us</h2>
-            <div className="bg-slate-200 rounded-lg h-64 flex items-center justify-center">
-              <div className="text-center">
-                <svg className="w-16 h-16 text-slate-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <p className="text-slate-500">Interactive map will be integrated here</p>
+            <h2 className="text-3xl font-bold text-slate-800 mb-8 text-center">Find Us at ESPRIT Campus</h2>
+            
+            {/* Carte interactive comme dans Checkout */}
+            <div className="space-y-6">
+              {import.meta.env.VITE_MAPBOX_ACCESS_TOKEN && !useSimpleMap ? (
+                <SafeMapboxDeliveryMap
+                  shippingInfo={espritShippingInfo}
+                  showAddressSearch={false}
+                  customLocation={{
+                    address: 'ESPRIT School of Engineering, Ariana, Tunis 2083, Tunisia',
+                    coordinates: [10.1976, 36.8065]
+                  }}
+                />
+              ) : (
+                <SimpleDeliveryMap
+                  shippingInfo={espritShippingInfo}
+                  showAddressSearch={false}
+                  customLocation={{
+                    address: 'ESPRIT School of Engineering, Ariana, Tunis 2083, Tunisia',
+                    coordinates: [10.1976, 36.8065]
+                  }}
+                />
+              )}
+              
+              {/* Contrôles comme dans Checkout */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                {import.meta.env.VITE_MAPBOX_ACCESS_TOKEN && (
+                  <button
+                    onClick={() => setUseSimpleMap(!useSimpleMap)}
+                    className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-3 rounded-lg font-medium hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 shadow-lg hover:shadow-xl"
+                  >
+                    {useSimpleMap ? 'Use Interactive Map' : 'Use Simple Map'}
+                  </button>
+                )}
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=36.8065,10.1976`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white text-slate-800 px-6 py-3 rounded-lg font-medium border border-slate-200 hover:bg-slate-50 transition-all duration-200 shadow-lg hover:shadow-xl text-center"
+                >
+                  Get Directions
+                </a>
               </div>
             </div>
           </div>

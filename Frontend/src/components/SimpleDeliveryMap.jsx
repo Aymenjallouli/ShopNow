@@ -3,15 +3,18 @@ import React, { useState } from 'react';
 const SimpleDeliveryMap = ({ 
   customerAddress = null,
   shippingInfo = null, // Ajout des informations du formulaire
+  customLocation = null, // Nouvelle prop pour location personnalisée
   onAddressSelect = null,
   showAddressSearch = false 
 }) => {
   const [searchAddress, setSearchAddress] = useState('');
   
-  // Obtenir les coordonnées basées sur les informations de livraison
-  const currentCoordinates = shippingInfo && shippingInfo.city ? 
-    getCityCoordinates(shippingInfo.city, shippingInfo.country) : 
-    null;
+  // Obtenir les coordonnées basées sur customLocation, puis informations de livraison
+  const currentCoordinates = customLocation ? 
+    { lat: customLocation.coordinates[1], lng: customLocation.coordinates[0] } :
+    (shippingInfo && shippingInfo.city ? 
+      getCityCoordinates(shippingInfo.city, shippingInfo.country) : 
+      null);
 
   const handleAddressSelect = (address) => {
     setSearchAddress(address);
@@ -134,24 +137,40 @@ const SimpleDeliveryMap = ({
 
         <div className="text-center z-5">
           <div className="text-6xl mb-4">🗺️</div>
-          <h3 className="text-xl font-bold text-slate-800 mb-2">Carte de livraison</h3>
+          <h3 className="text-xl font-bold text-slate-800 mb-2">
+            {customLocation ? 'Notre Localisation' : 'Carte de livraison'}
+          </h3>
           <p className="text-slate-600 max-w-sm">
-            {shippingInfo && shippingInfo.address ? 
-              `Livraison vers ${shippingInfo.city}, ${shippingInfo.country}` : 
-              'Remplissez le formulaire de livraison pour voir votre localisation'
+            {customLocation ? 
+              `Vous pouvez nous trouver à ${customLocation.address}` :
+              (shippingInfo && shippingInfo.address ? 
+                `Livraison vers ${shippingInfo.city}, ${shippingInfo.country}` : 
+                'Remplissez le formulaire de livraison pour voir votre localisation')
             }
           </p>
-          {shippingInfo && shippingInfo.address && (
+          {customLocation ? (
             <div className="mt-4 p-3 bg-white/90 backdrop-blur-sm rounded-lg inline-block max-w-xs">
               <div className="flex items-center text-sm text-slate-700">
                 <span className="mr-2">📍</span>
                 <div className="text-left">
-                  <div className="font-medium">{shippingInfo.address}</div>
-                  <div className="text-xs text-slate-500">{shippingInfo.city}, {shippingInfo.state}</div>
-                  <div className="text-xs text-slate-500">{shippingInfo.postalCode}, {shippingInfo.country}</div>
+                  <div className="font-medium">{customLocation.address}</div>
+                  <div className="text-xs text-slate-500">Coordonnées: {customLocation.coordinates[1].toFixed(4)}, {customLocation.coordinates[0].toFixed(4)}</div>
                 </div>
               </div>
             </div>
+          ) : (
+            shippingInfo && shippingInfo.address && (
+              <div className="mt-4 p-3 bg-white/90 backdrop-blur-sm rounded-lg inline-block max-w-xs">
+                <div className="flex items-center text-sm text-slate-700">
+                  <span className="mr-2">📍</span>
+                  <div className="text-left">
+                    <div className="font-medium">{shippingInfo.address}</div>
+                    <div className="text-xs text-slate-500">{shippingInfo.city}, {shippingInfo.state}</div>
+                    <div className="text-xs text-slate-500">{shippingInfo.postalCode}, {shippingInfo.country}</div>
+                  </div>
+                </div>
+              </div>
+            )
           )}
         </div>
 

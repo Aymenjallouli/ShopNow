@@ -98,7 +98,7 @@ const DeliveryZones = ({ selectedGovernorate }) => {
           
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold">{zoneInfo.fee.toFixed(3)} DT</div>
+              <div className="text-2xl font-bold">{typeof zoneInfo.fee === 'number' ? zoneInfo.fee.toFixed(3) : parseFloat(zoneInfo.fee) ? parseFloat(zoneInfo.fee).toFixed(3) : zoneInfo.fee} DT</div>
               <div className="text-sm opacity-75">Frais de livraison</div>
             </div>
             <div className="text-center">

@@ -1,21 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
 const FloatingNav = ({ categoriesRef, productsRef, statsRef }) => {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true); // Toujours visible par défaut
   const [activeSection, setActiveSection] = useState('');
 
   useEffect(() => {
-    const toggleVisibility = () => {
-      if (window.pageYOffset > 300) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
-    };
-
     const handleScroll = () => {
-      toggleVisibility();
-      
       // Determine active section
       const scrollPosition = window.pageYOffset + 100;
       
@@ -55,8 +45,6 @@ const FloatingNav = ({ categoriesRef, productsRef, statsRef }) => {
     });
     setActiveSection('');
   };
-
-  if (!isVisible) return null;
 
   return (
     <div className="fixed right-6 top-1/2 transform -translate-y-1/2 z-50">

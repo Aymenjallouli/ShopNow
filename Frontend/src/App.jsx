@@ -1,33 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCurrentUser } from './features/auth/authSlice';
 import { fetchCart } from './features/cart/cartSlice';
 import { fetchWishlist } from './features/wishlist/wishlistSlice';
 
-// Layout components
+// Layout components (non lazy car toujours nécessaires)
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import Loader from './components/Loader';
 
-// Pages
-import Home from './pages/Home';
-import ProductDetail from './pages/ProductDetail';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import PaymentTest from './pages/PaymentTest';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Profile from './pages/Profile';
-import Wishlist from './pages/Wishlist';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import FAQ from './pages/FAQ';
-import TrackingPage from './pages/TrackingPage';
-import NotFound from './pages/NotFound';
+// Pages avec lazy loading pour le code splitting
+const Home = lazy(() => import('./pages/Home'));
+const ProductDetail = lazy(() => import('./pages/ProductDetail'));
+const Cart = lazy(() => import('./pages/Cart'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const PaymentTest = lazy(() => import('./pages/PaymentTest'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Wishlist = lazy(() => import('./pages/Wishlist'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+const FAQ = lazy(() => import('./pages/FAQ'));
+const TrackingPage = lazy(() => import('./pages/TrackingPage'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
-// Admin pages
-import AdminDashboard from './pages/Admin/Dashboard';
-import AdminUsers from './pages/Admin/Users';
+// Admin pages avec lazy loading
+const AdminDashboard = lazy(() => import('./pages/Admin/Dashboard'));
+const AdminUsers = lazy(() => import('./pages/Admin/Users'));
 import AdminProducts from './pages/Admin/Products';
 import AdminCategories from './pages/Admin/Categories';
 import AdminOrders from './pages/Admin/Orders';
@@ -96,7 +97,12 @@ function App() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow pt-16">
-        <Routes>
+        <Suspense fallback={
+          <div className="flex items-center justify-center min-h-screen">
+            <Loader />
+          </div>
+        }>
+          <Routes>
           {/* Public routes */}
           <Route path="/" element={<Home />} />
           <Route path="/products/:id" element={<ProductDetail />} />
@@ -187,6 +193,7 @@ function App() {
           {/* 404 route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+      </Suspense>
       </main>
       <Footer />
     </div>

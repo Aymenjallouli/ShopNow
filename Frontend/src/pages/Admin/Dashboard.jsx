@@ -120,7 +120,7 @@ const Dashboard = () => {
                                 {order.customer}
                               </td>
                               <td className="px-4 py-4 whitespace-nowrap text-sm font-semibold text-slate-900">
-                                ${order.total.toFixed(2)}
+                                ${typeof order.total === 'number' ? order.total.toFixed(2) : parseFloat(order.total) ? parseFloat(order.total).toFixed(2) : order.total}
                               </td>
                               <td className="px-4 py-4 whitespace-nowrap">
                                 <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -298,7 +298,7 @@ const Dashboard = () => {
                                 </span>
                               </td>
                               <td className="px-4 py-4 whitespace-nowrap text-sm font-semibold text-slate-900">
-                                ${product.price.toFixed(2)}
+                                ${typeof product.price === 'number' ? product.price.toFixed(2) : parseFloat(product.price) ? parseFloat(product.price).toFixed(2) : product.price}
                               </td>
                             </tr>
                           ))}

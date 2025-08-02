@@ -52,7 +52,7 @@ const ProductCard = ({ product }) => {
             {category?.name || 'Uncategorized'}
           </p>
         </div>
-        <p className="text-sm font-medium text-gray-900">${typeof price === 'number' ? price.toFixed(2) : '0.00'}</p>
+        <p className="text-sm font-medium text-gray-900">${typeof price === 'number' ? price.toFixed(2) : parseFloat(price) ? parseFloat(price).toFixed(2) : '0.00'}</p>
       </div>
       
       <div className="mt-1 flex items-center">

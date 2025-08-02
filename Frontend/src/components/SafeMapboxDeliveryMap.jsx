@@ -4,15 +4,20 @@ const SafeMapboxDeliveryMap = ({
   customerAddress = null, 
   shippingInfo = null, // Ajout des informations du formulaire
   warehouseLocation = { lat: 36.8065, lng: 10.1815 }, // Tunis par défaut
+  customLocation = null, // Nouvelle prop pour location personnalisée
   onAddressSelect = null,
   showAddressSearch = false,
   deliveryRoute = null 
 }) => {
   const mapContainer = useRef(null);
   const map = useRef(null);
-  const [lng, setLng] = useState(warehouseLocation.lng);
-  const [lat, setLat] = useState(warehouseLocation.lat);
-  const [zoom, setZoom] = useState(12);
+  // Utiliser customLocation si fournie, sinon warehouseLocation
+  const targetLocation = customLocation ? 
+    { lat: customLocation.coordinates[1], lng: customLocation.coordinates[0] } : 
+    warehouseLocation;
+  const [lng, setLng] = useState(targetLocation.lng);
+  const [lat, setLat] = useState(targetLocation.lat);
+  const [zoom, setZoom] = useState(customLocation ? 15 : 12);
   const [searchAddress, setSearchAddress] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -60,11 +65,16 @@ const SafeMapboxDeliveryMap = ({
         map.current.on('load', () => {
           setMapLoaded(true);
           
-          // Ajouter un marqueur pour l'entrepôt après le chargement
+          // Ajouter un marqueur pour la location (customLocation ou warehouse)
           if (map.current) {
+            const markerLocation = customLocation ? customLocation.coordinates : [warehouseLocation.lng, warehouseLocation.lat];
+            const popupContent = customLocation ? 
+              `<h3>📍 ${customLocation.address}</h3><p>Notre emplacement</p>` : 
+              '<h3>🏭 Entrepôt ShopNow</h3><p>Point de départ des livraisons</p>';
+            
             new mapboxgl.Marker({ color: '#10B981' })
-              .setLngLat([warehouseLocation.lng, warehouseLocation.lat])
-              .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML('<h3>🏭 Entrepôt ShopNow</h3><p>Point de départ des livraisons</p>'))
+              .setLngLat(markerLocation)
+              .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(popupContent))
               .addTo(map.current);
           }
         });
@@ -94,7 +104,7 @@ const SafeMapboxDeliveryMap = ({
     // Délai pour s'assurer que le DOM est prêt
     const timeoutId = setTimeout(initMap, 100);
     return () => clearTimeout(timeoutId);
-  }, [mapboxgl, lng, lat, zoom, warehouseLocation]);
+  }, [mapboxgl, lng, lat, zoom, customLocation, warehouseLocation]);
 
   // Nettoyage
   useEffect(() => {
