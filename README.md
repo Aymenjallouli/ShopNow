@@ -381,17 +381,26 @@ docker-compose up -d
 
 ## 🎨 Screenshots
 
+Les captures affichées proviennent maintenant du dossier `ScreenShots/` du dépôt.
+
 ### Page d'Accueil
-![Homepage](docs/screenshots/homepage.png)
+![Homepage](ScreenShots/Home.png)
 
 ### Checkout avec Mapbox
-![Checkout](docs/screenshots/checkout.png)
+![Checkout](ScreenShots/Checkout.png)
 
-### Dashboard Admin
-![Admin](docs/screenshots/admin-dashboard.png)
+### Page Produit
+![Produit](ScreenShots/Product.png)
 
-### Mobile Responsive
-![Mobile](docs/screenshots/mobile-view.png)
+### Page Login (mobile / responsive)
+![Login](ScreenShots/Login.png)
+
+### Pages Additionnelles
+| À propos | Contact |
+|----------|---------|
+| ![About](ScreenShots/About.png) | ![Contact](ScreenShots/Contact.png) |
+
+> Pour ajouter de nouvelles captures: placer l'image dans `ScreenShots/` puis référencer-la avec `![Nom](ScreenShots/NomFichier.png)`.
 
 ## 🔮 Roadmap
 
