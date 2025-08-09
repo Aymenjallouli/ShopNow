@@ -59,6 +59,13 @@ export const clearWishlist = createAsyncThunk(
   }
 );
 
+const normalizeList = (data) => {
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data.results)) return data.results;
+  if (data && Array.isArray(data.items)) return data.items;
+  return [];
+};
+
 const wishlistSlice = createSlice({
   name: 'wishlist',
   initialState,
@@ -79,7 +86,7 @@ const wishlistSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchWishlist.fulfilled, (state, action) => {
-        state.items = action.payload;
+        state.items = normalizeList(action.payload);
         state.loading = false;
       })
       .addCase(fetchWishlist.rejected, (state, action) => {
@@ -93,7 +100,11 @@ const wishlistSlice = createSlice({
         state.error = null;
       })
       .addCase(addToWishlist.fulfilled, (state, action) => {
-        state.items.push(action.payload);
+        const item = action.payload;
+        // Avoid duplicates (by product id if exists)
+        const productId = item?.product?.id || item?.product_id;
+        if (productId && state.items.some(i => (i.product?.id || i.product_id) === productId)) return;
+        state.items.push(item);
         state.loading = false;
       })
       .addCase(addToWishlist.rejected, (state, action) => {

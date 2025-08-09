@@ -9,13 +9,14 @@ import { OptimizedImage } from '../LazyLoadWrapper';
 
 const ProductCard = memo(({ product }) => {
   const dispatch = useDispatch();
-  const { items: wishlistItems } = useSelector((state) => state.wishlist);
+  const { items: wishlistItemsRaw } = useSelector((state) => state.wishlist || { items: [] });
+  const wishlistItems = Array.isArray(wishlistItemsRaw) ? wishlistItemsRaw : [];
   
   // Memoize expensive calculations
-  const isWishlistedMemo = useMemo(() => 
-    wishlistItems.some(item => item?.product?.id === product.id),
-    [wishlistItems, product.id]
-  );
+  const isWishlistedMemo = useMemo(() => {
+    if (!Array.isArray(wishlistItems)) return false;
+    return wishlistItems.some(item => item?.product?.id === product.id);
+  }, [wishlistItems, product.id]);
   
   const [isWishlisted, setIsWishlisted] = useState(isWishlistedMemo);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -31,7 +32,7 @@ const ProductCard = memo(({ product }) => {
     e.stopPropagation();
     
     if (isWishlisted) {
-      const wishlistItem = wishlistItems.find(item => item?.product?.id === product.id);
+  const wishlistItem = Array.isArray(wishlistItems) ? wishlistItems.find(item => item?.product?.id === product.id) : null;
       if (wishlistItem) {
         dispatch(removeFromWishlist(wishlistItem.id));
         setIsWishlisted(false);
@@ -55,20 +56,23 @@ const ProductCard = memo(({ product }) => {
     setImageLoaded(true);
   }, []);
 
-  // Memoize expensive calculations
-  const { rating, reviewCount, originalPrice, discountPercentage } = useMemo(() => {
-    const rating = Math.floor(Math.random() * 2) + 4; // 4-5 stars
-    const reviewCount = Math.floor(Math.random() * 200) + 10;
-    const originalPrice = product.price ? parseFloat(product.price) * 1.2 : null;
-    const discountPercentage = originalPrice ? Math.round(((originalPrice - parseFloat(product.price)) / originalPrice) * 100) : null;
-    
-    return { rating, reviewCount, originalPrice, discountPercentage };
-  }, [product.price]);
+  // Real reviews + rating (frontend expects product.reviews & product.rating from backend)
+  const realReviews = Array.isArray(product.reviews) ? product.reviews : [];
+  const averageRating = useMemo(() => {
+    if (typeof product.rating === 'number') return product.rating;
+    if (!realReviews.length) return 0;
+    return realReviews.reduce((s, r) => s + (r.rating || 0), 0) / realReviews.length;
+  }, [product.rating, realReviews]);
+
+  // Real discount only if backend supplies discount_price < price
+  const basePrice = parseFloat(product.price) || 0;
+  const hasDiscount = typeof product.discount_price === 'number' && product.discount_price < basePrice;
+  const discountPercentage = hasDiscount ? Math.round(((basePrice - product.discount_price) / basePrice) * 100) : null;
 
   return (
     <div className="group relative bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1">
       {/* Discount Badge */}
-      {discountPercentage && discountPercentage > 0 && (
+  {hasDiscount && discountPercentage > 0 && (
         <div className="absolute top-3 left-3 z-10 bg-gradient-to-r from-rose-500 to-rose-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-lg">
           -{discountPercentage}%
         </div>
@@ -128,32 +132,41 @@ const ProductCard = memo(({ product }) => {
           </h3>
         </Link>
 
-        {/* Rating */}
-        <div className="flex items-center space-x-1 mb-3">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <span key={i}>
-                {i < rating ? (
-                  <StarIconSolid className="h-4 w-4 text-amber-400" />
-                ) : (
-                  <StarIcon className="h-4 w-4 text-slate-300" />
-                )}
-              </span>
-            ))}
+        {/* Rating (only if real reviews) */}
+        {(realReviews.length > 0 || averageRating > 0) ? (
+          <div className="flex items-center space-x-1 mb-3">
+            <div className="flex items-center">
+              {[...Array(5)].map((_, i) => (
+                <span key={i}>
+                  {i < Math.round(averageRating) ? (
+                    <StarIconSolid className="h-4 w-4 text-amber-400" />
+                  ) : (
+                    <StarIcon className="h-4 w-4 text-slate-300" />
+                  )}
+                </span>
+              ))}
+            </div>
+            {realReviews.length > 0 && (
+              <span className="text-xs text-slate-500">({realReviews.length})</span>
+            )}
           </div>
-          <span className="text-sm text-slate-500">({reviewCount})</span>
-        </div>
+        ) : (
+          <div className="h-5 mb-3 flex items-center text-[11px] text-slate-400 italic">Pas encore d'avis</div>
+        )}
 
         {/* Price */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
-            <span className="text-xl font-bold text-slate-900">
-              ${typeof product.price === 'number' ? product.price.toFixed(2) : parseFloat(product.price) ? parseFloat(product.price).toFixed(2) : product.price}
-            </span>
-            {originalPrice && (
-              <span className="text-sm text-slate-500 line-through">
-                ${typeof originalPrice === 'number' ? originalPrice.toFixed(2) : parseFloat(originalPrice) ? parseFloat(originalPrice).toFixed(2) : originalPrice}
+            {!hasDiscount && (
+              <span className="text-xl font-bold text-slate-900">
+                ${basePrice.toFixed(2)}
               </span>
+            )}
+            {hasDiscount && (
+              <>
+                <span className="text-xl font-bold text-emerald-600">${product.discount_price.toFixed(2)}</span>
+                <span className="text-sm text-slate-500 line-through">${basePrice.toFixed(2)}</span>
+              </>
             )}
           </div>
           

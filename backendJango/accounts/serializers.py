@@ -6,12 +6,13 @@ User = get_user_model()
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True, required=False)
+    role = serializers.ChoiceField(choices=get_user_model().ROLE_CHOICES, required=False)
 
     class Meta:
         model = User
         fields = (
             'id', 'username', 'email', 'password', 'password2',
-            'first_name', 'last_name', 'phone_number', 'address', 'city', 'state', 'country', 'zip_code', 'date_of_birth', 'is_staff'
+            'first_name', 'last_name', 'phone_number', 'address', 'city', 'state', 'country', 'zip_code', 'date_of_birth', 'is_staff', 'role'
         )
 
     def validate(self, data):
@@ -38,6 +39,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             zip_code=validated_data.get('zip_code'),
             date_of_birth=validated_data.get('date_of_birth'),
             is_staff=validated_data.get('is_staff', False),
+            role=validated_data.get('role', 'customer'),
         )
         return user
 
@@ -63,7 +65,7 @@ class AdminUserSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'username', 'email', 'first_name', 'last_name', 
             'phone_number', 'address', 'city', 'state', 'country', 
-            'zip_code', 'date_of_birth', 'is_staff', 'is_active', 'status'
+            'zip_code', 'date_of_birth', 'is_staff', 'is_active', 'status', 'role'
         )
     
     def to_representation(self, instance):

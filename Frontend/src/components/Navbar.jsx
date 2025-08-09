@@ -48,7 +48,7 @@ const Navbar = () => {
   
   const handleLogout = () => {
     dispatch(logout());
-    navigate('/');
+  navigate('/login');
   };
   
   return (
@@ -271,6 +271,25 @@ const Navbar = () => {
                         )}
                         
                         {/* Sign Out Button */}
+                        {user?.role === 'shop_owner' && (
+                          <Menu.Item>
+                            {({ active }) => (
+                              <Link
+                                to="/my-shop"
+                                className={classNames(
+                                  active ? 'bg-emerald-50 text-emerald-600' : 'text-slate-700',
+                                  'flex items-center px-4 py-2 text-sm transition-colors duration-200'
+                                )}
+                              >
+                                <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7l9-4 9 4-9 4-9-4zm0 6l9 4 9-4" />
+                                </svg>
+                                My Shop
+                              </Link>
+                            )}
+                          </Menu.Item>
+                        )}
+                       
                         <Menu.Item>
                           {({ active }) => (
                             <button

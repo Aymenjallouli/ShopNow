@@ -9,6 +9,7 @@ import { fetchWishlist } from './features/wishlist/wishlistSlice';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Loader from './components/Loader';
+import ScrollToTop from './components/ScrollToTop';
 
 // Pages avec lazy loading pour le code splitting
 const Home = lazy(() => import('./pages/Home'));
@@ -20,11 +21,13 @@ const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Wishlist = lazy(() => import('./pages/Wishlist'));
+const MyShop = lazy(() => import('./pages/MyShop'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const FAQ = lazy(() => import('./pages/FAQ'));
 const TrackingPage = lazy(() => import('./pages/TrackingPage'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const ShopDetail = lazy(()=> import('./pages/ShopDetail'));
 
 // Admin pages avec lazy loading
 const AdminDashboard = lazy(() => import('./pages/Admin/Dashboard'));
@@ -32,6 +35,7 @@ const AdminUsers = lazy(() => import('./pages/Admin/Users'));
 import AdminProducts from './pages/Admin/Products';
 import AdminCategories from './pages/Admin/Categories';
 import AdminOrders from './pages/Admin/Orders';
+import AdminShops from './pages/Admin/Shops';
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -97,6 +101,7 @@ function App() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow pt-16">
+        <ScrollToTop />
         <Suspense fallback={
           <div className="flex items-center justify-center min-h-screen">
             <Loader />
@@ -106,6 +111,7 @@ function App() {
           {/* Public routes */}
           <Route path="/" element={<Home />} />
           <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/shops/:id" element={<ShopDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
@@ -136,6 +142,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <Wishlist />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/my-shop" 
+            element={
+              <ProtectedRoute>
+                <MyShop />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/create-shop" 
+            element={
+              <ProtectedRoute>
+                <MyShop />
               </ProtectedRoute>
             } 
           />
@@ -178,6 +200,14 @@ function App() {
             element={
               <AdminRoute>
                 <AdminCategories />
+              </AdminRoute>
+            } 
+          />
+          <Route 
+            path="/admin/shops" 
+            element={
+              <AdminRoute>
+                <AdminShops />
               </AdminRoute>
             } 
           />

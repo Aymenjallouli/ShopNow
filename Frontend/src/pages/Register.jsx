@@ -13,6 +13,7 @@ const Register = () => {
     last_name: '',
     password: '',
     password2: '',
+  role: 'customer',
   });
   const [formErrors, setFormErrors] = useState({});
   
@@ -277,6 +278,21 @@ const Register = () => {
                 {formErrors.password2 && (
                   <p className="mt-1 text-sm text-red-600">{formErrors.password2}</p>
                 )}
+              </div>
+              <div>
+                <label htmlFor="role" className="block text-sm font-medium text-slate-700 mb-1">
+                  Rôle
+                </label>
+                <select
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border rounded-lg bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:border-transparent border-slate-200 focus:ring-emerald-200 focus:border-emerald-300"
+                >
+                  <option value="customer">Client</option>
+                  <option value="shop_owner">Shop Owner</option>
+                </select>
               </div>
             </div>
           </div>

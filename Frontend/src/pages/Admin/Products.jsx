@@ -8,6 +8,7 @@ const ProductManagement = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -20,6 +21,7 @@ const ProductManagement = () => {
     discount_price: '',
     stock: '',
     category: '',
+  shop: '',
     status: 'available',
     featured: false,
     image: null,
@@ -34,6 +36,15 @@ const ProductManagement = () => {
         const productsResponse = await api.get('/products/');
         setProducts(Array.isArray(productsResponse.data.products) ? productsResponse.data.products : []);
         setCategories(Array.isArray(productsResponse.data.categories) ? productsResponse.data.categories : []);
+        try {
+          const shopsRes = await api.get('/shops/');
+            const shopsData = shopsRes.data;
+            const list = Array.isArray(shopsData?.results) ? shopsData.results : (Array.isArray(shopsData) ? shopsData : []);
+            setShops(list);
+        } catch(fetchShopsErr) {
+          console.warn('Failed to fetch shops for product assignment', fetchShopsErr);
+          setShops([]);
+        }
         setError(null);
       } catch (err) {
         setError('Failed to fetch data');
@@ -59,6 +70,7 @@ const ProductManagement = () => {
       discount_price: '',
       stock: '',
       category: '',
+  shop: '',
       status: 'available',
       featured: false,
       image: null,
@@ -75,6 +87,7 @@ const ProductManagement = () => {
       discount_price: product.discount_price || '',
       stock: product.stock || '',
       category: product.category || '',
+  shop: product.shop || product.shop_id || '',
       status: product.status || 'available',
       featured: product.featured,
       image: null, // Don't set the image here, just keep the existing one
@@ -146,6 +159,10 @@ const ProductManagement = () => {
       }
       // Préparer les données à envoyer au backend (image = url Cloudinary)
       const payload = { ...formData, image: imageUrl };
+      if(payload.shop === '') {
+        // Prevent sending empty string, backend expects null or omitted
+        delete payload.shop;
+      }
       // Si image n'a pas changé (string déjà url), on garde
       // Si image supprimée, envoyer null
       if (!imageUrl) payload.image = null;
@@ -382,6 +399,29 @@ const ProductManagement = () => {
                             <option key={category.id} value={category.id}>
                               {category.name}
                             </option>
+                          ))}
+                        </select>
+                        <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        Shop <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <select
+                          name="shop"
+                          value={formData.shop}
+                          onChange={handleInputChange}
+                          required
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all duration-200 appearance-none"
+                        >
+                          <option value="">Select a shop</option>
+                          {shops.map((s) => (
+                            <option key={s.id} value={s.id}>{s.name}</option>
                           ))}
                         </select>
                         <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">

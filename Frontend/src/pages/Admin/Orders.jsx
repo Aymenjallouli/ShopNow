@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
@@ -7,29 +7,31 @@ import api from '../../services/api';
 const OrderManagement = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const [orders, setOrders] = useState([]);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
 
-  // Fetch orders
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get('/orders/');
-        setOrders(response.data);
-        setError(null);
-      } catch (err) {
-        setError('Failed to fetch orders');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrders();
+  // Fetch orders function hoisted so it can be reused
+  const fetchOrders = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/orders/admin/');
+      setOrders(response.data.orders || []);
+      setStats(response.data.stats || null);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch orders');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   // Redirect if not admin
   if (!isAuthenticated || !user || !user.is_staff) {
@@ -43,19 +45,12 @@ const OrderManagement = () => {
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       setLoading(true);
-      
-      const response = await api.patch(`/orders/${orderId}/`, {
-        status: newStatus
-      });
-      
-      // Update the order in the list
-      setOrders(orders.map(o => o.id === orderId ? response.data : o));
-      
-      // Update selected order if it's the one being changed
-      if (selectedOrder && selectedOrder.id === orderId) {
-        setSelectedOrder(response.data);
-      }
-      
+      await api.patch('/orders/admin/', { order_id: orderId, status: newStatus });
+      // refresh list quickly
+      await fetchOrders();
+      // keep selected order updated
+      const updated = orders.find(o => o.id === orderId);
+      if (updated) setSelectedOrder(updated);
       setError(null);
     } catch (err) {
       setError('Failed to update order status');
@@ -95,6 +90,26 @@ const OrderManagement = () => {
       <div className="flex-1 overflow-x-hidden overflow-y-auto">
         <main className="p-6">
           <h1 className="text-3xl font-semibold text-gray-800">Order Management</h1>
+          {stats && (
+            <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-white p-4 rounded shadow">
+                <p className="text-xs uppercase text-gray-500">Total Orders</p>
+                <p className="text-2xl font-semibold">{stats.total_orders}</p>
+              </div>
+              <div className="bg-white p-4 rounded shadow">
+                <p className="text-xs uppercase text-gray-500">Revenue</p>
+                <p className="text-2xl font-semibold">${stats.total_revenue.toFixed(2)}</p>
+              </div>
+              <div className="bg-white p-4 rounded shadow">
+                <p className="text-xs uppercase text-gray-500">30d Orders</p>
+                <p className="text-2xl font-semibold">{stats.orders_last_30d}</p>
+              </div>
+              <div className="bg-white p-4 rounded shadow">
+                <p className="text-xs uppercase text-gray-500">30d Revenue</p>
+                <p className="text-2xl font-semibold">${stats.revenue_last_30d.toFixed(2)}</p>
+              </div>
+            </div>
+          )}
           
           {error && (
             <div className="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
@@ -175,7 +190,7 @@ const OrderManagement = () => {
                               {new Date(order.created_at).toLocaleDateString()}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              ${order.total_amount?.toFixed(2) || '0.00'}
+                              ${parseFloat(order.total_price).toFixed(2)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeColor(order.status)}`}>
@@ -206,7 +221,7 @@ const OrderManagement = () => {
                   Order Details
                 </h2>
                 
-                {selectedOrder ? (
+        {selectedOrder ? (
                   <div>
                     <div className="mb-6">
                       <div className="flex justify-between items-center mb-4">
@@ -239,10 +254,10 @@ const OrderManagement = () => {
                     
                     <div className="mb-6">
                       <h4 className="font-medium mb-2">Order Items</h4>
-                      {selectedOrder.items && selectedOrder.items.length > 0 ? (
+          {selectedOrder.items && selectedOrder.items.length > 0 ? (
                         <ul className="divide-y divide-gray-200">
-                          {selectedOrder.items.map((item, index) => (
-                            <li key={index} className="py-2">
+          {selectedOrder.items.map((item, index) => (
+            <li key={index} className="py-2">
                               <div className="flex justify-between">
                                 <div>
                                   <p className="text-sm font-medium text-gray-900">
@@ -253,7 +268,7 @@ const OrderManagement = () => {
                                   </p>
                                 </div>
                                 <p className="text-sm font-medium text-gray-900">
-                                  ${(item.price * item.quantity).toFixed(2)}
+              {parseFloat(item.subtotal).toFixed(2)}
                                 </p>
                               </div>
                             </li>
@@ -265,84 +280,55 @@ const OrderManagement = () => {
                     </div>
                     
                     <div className="border-t border-gray-200 pt-4 mb-6">
-                      <div className="flex justify-between text-sm mb-2">
-                        <p className="text-gray-600">Subtotal</p>
-                        <p className="font-medium">${selectedOrder.subtotal?.toFixed(2) || '0.00'}</p>
-                      </div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <p className="text-gray-600">Shipping</p>
-                        <p className="font-medium">${selectedOrder.shipping_cost?.toFixed(2) || '0.00'}</p>
-                      </div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <p className="text-gray-600">Tax</p>
-                        <p className="font-medium">${selectedOrder.tax?.toFixed(2) || '0.00'}</p>
-                      </div>
                       <div className="flex justify-between text-base font-medium mt-4">
                         <p>Total</p>
-                        <p>${selectedOrder.total_amount?.toFixed(2) || '0.00'}</p>
+        <p>${parseFloat(selectedOrder.total_price).toFixed(2)}</p>
                       </div>
                     </div>
                     
                     <div className="border-t border-gray-200 pt-4">
                       <h4 className="font-medium mb-2">Update Status</h4>
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          onClick={() => handleStatusChange(selectedOrder.id, 'pending')}
-                          disabled={selectedOrder.status === 'pending'}
-                          className={`px-3 py-1 text-xs font-medium rounded-full ${
-                            selectedOrder.status === 'pending'
-                              ? 'bg-gray-100 text-gray-400'
-                              : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
-                          }`}
-                        >
-                          Pending
-                        </button>
-                        <button
-                          onClick={() => handleStatusChange(selectedOrder.id, 'processing')}
-                          disabled={selectedOrder.status === 'processing'}
-                          className={`px-3 py-1 text-xs font-medium rounded-full ${
-                            selectedOrder.status === 'processing'
-                              ? 'bg-gray-100 text-gray-400'
-                              : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-                          }`}
-                        >
-                          Processing
-                        </button>
-                        <button
-                          onClick={() => handleStatusChange(selectedOrder.id, 'shipped')}
-                          disabled={selectedOrder.status === 'shipped'}
-                          className={`px-3 py-1 text-xs font-medium rounded-full ${
-                            selectedOrder.status === 'shipped'
-                              ? 'bg-gray-100 text-gray-400'
-                              : 'bg-purple-100 text-purple-800 hover:bg-purple-200'
-                          }`}
-                        >
-                          Shipped
-                        </button>
-                        <button
-                          onClick={() => handleStatusChange(selectedOrder.id, 'delivered')}
-                          disabled={selectedOrder.status === 'delivered'}
-                          className={`px-3 py-1 text-xs font-medium rounded-full ${
-                            selectedOrder.status === 'delivered'
-                              ? 'bg-gray-100 text-gray-400'
-                              : 'bg-green-100 text-green-800 hover:bg-green-200'
-                          }`}
-                        >
-                          Delivered
-                        </button>
-                        <button
-                          onClick={() => handleStatusChange(selectedOrder.id, 'cancelled')}
-                          disabled={selectedOrder.status === 'cancelled'}
-                          className={`px-3 py-1 text-xs font-medium rounded-full ${
-                            selectedOrder.status === 'cancelled'
-                              ? 'bg-gray-100 text-gray-400'
-                              : 'bg-red-100 text-red-800 hover:bg-red-200'
-                          }`}
-                        >
-                          Cancelled
-                        </button>
+                      <div className="flex flex-wrap items-center gap-3 text-sm">
+                        {['pending','processing','shipped','delivered','cancelled'].map((st,idx,array)=>{
+                          const isActive = selectedOrder.status === st;
+                          const colorMap = {
+                            pending: 'text-yellow-600 hover:text-yellow-700',
+                            processing: 'text-blue-600 hover:text-blue-700',
+                            shipped: 'text-purple-600 hover:text-purple-700',
+                            delivered: 'text-green-600 hover:text-green-700',
+                            cancelled: 'text-red-600 hover:text-red-700'
+                          };
+                          return (
+                            <div key={st} className="flex items-center">
+                              <button
+                                disabled={isActive}
+                                onClick={()=>!isActive && handleStatusChange(selectedOrder.id, st)}
+                                className={`font-medium transition-colors ${isActive ? 'text-gray-400 cursor-default' : colorMap[st]} ${!isActive ? 'hover:underline' : ''}`}
+                              >
+                                {st.charAt(0).toUpperCase() + st.slice(1)}
+                              </button>
+                              {idx < array.length -1 && <span className="mx-2 text-gray-300">|</span>}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
+                    {selectedOrder.status_history && selectedOrder.status_history.length > 0 && (
+                      <div className="mt-6 border-t border-gray-200 pt-4">
+                        <h4 className="font-medium mb-2">Status History</h4>
+                        <ol className="space-y-2 text-sm">
+                          {selectedOrder.status_history.map((h, idx) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <span className="mt-1 h-2 w-2 rounded-full bg-indigo-500"></span>
+                              <div>
+                                <p className="font-medium">{(h.to || '').charAt(0).toUpperCase() + (h.to || '').slice(1)}</p>
+                                <p className="text-gray-500 text-xs">{new Date(h.changed_at).toLocaleString()}</p>
+                              </div>
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center text-gray-500">

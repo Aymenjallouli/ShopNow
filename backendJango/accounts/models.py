@@ -8,6 +8,11 @@ class CustomUser(AbstractUser):
         ('active', 'Active'),
         ('inactive', 'Inactive'),
     ]
+    ROLE_CHOICES = [
+        ('customer', 'Customer'),
+        ('shop_owner', 'Shop Owner'),
+        ('admin', 'Admin'),
+    ]
     email = models.EmailField(_('email address'), unique=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
@@ -18,6 +23,12 @@ class CustomUser(AbstractUser):
     date_of_birth = models.DateField(blank=True, null=True)
     is_verified = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='customer')
 
     def __str__(self):
         return self.username
+
+    @property
+    def is_shop_owner(self):
+        return self.role == 'shop_owner'
+

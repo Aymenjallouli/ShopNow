@@ -244,17 +244,33 @@ class WebVitalsMonitor {
       console.group(`🚨 Layout Shift Important (${entry.value.toFixed(4)}):`);
       
       entry.sources?.forEach((source, index) => {
-        const element = source.node;
-        console.log(`Élément ${index + 1}:`, element);
-        console.log('Avant:', source.previousRect);
-        console.log('Après:', source.currentRect);
-        
-        // Suggestions d'amélioration
-        if (element.tagName === 'IMG' && (!element.width || !element.height)) {
-          console.log('💡 Suggestion: Définir width/height ou aspect-ratio pour cette image');
+        const element = source?.node || null;
+        // Some layout shift sources can reference removed nodes or text nodes.
+        const isElement = element && element.nodeType === 1; // ELEMENT_NODE
+
+        console.log(`Source ${index + 1}:`, {
+          node: element,
+          previousRect: source.previousRect,
+            currentRect: source.currentRect,
+            nodeType: element?.nodeType,
+            tag: isElement ? element.tagName : null
+        });
+
+        if (!isElement) {
+          // Skip suggestions if not a valid element
+          return;
         }
-        if (element.tagName === 'DIV' && !element.style.minHeight) {
-          console.log('💡 Suggestion: Définir une min-height pour ce conteneur');
+
+        // Defensive try/catch in case the DOM mutates during logging
+        try {
+          if (element.tagName === 'IMG' && (!element.getAttribute('width') || !element.getAttribute('height')) && !(element.style.aspectRatio || element.style.width && element.style.height)) {
+            console.log('💡 Suggestion: Définir width/height ou aspect-ratio pour cette image (prévenir CLS)');
+          }
+          if (element.tagName === 'DIV' && !element.style.minHeight && (source.previousRect?.height !== source.currentRect?.height)) {
+            console.log('💡 Suggestion: Réserver l\'espace (min-height) pour ce conteneur');
+          }
+        } catch(e) {
+          console.debug('Analyse CLS élément ignorée (mutation concurrente):', e);
         }
       });
       

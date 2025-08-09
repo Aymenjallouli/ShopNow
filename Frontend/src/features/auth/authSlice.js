@@ -160,7 +160,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
-        state.user = action.payload;
+  state.user = action.payload;
         state.isAuthenticated = true;
         state.loading = false;
       })

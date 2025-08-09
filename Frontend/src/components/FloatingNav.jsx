@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const FloatingNav = ({ categoriesRef, productsRef, statsRef }) => {
+const FloatingNav = ({ categoriesRef, storesRef, productsRef, statsRef }) => {
   const [isVisible, setIsVisible] = useState(true); // Toujours visible par défaut
   const [activeSection, setActiveSection] = useState('');
 
@@ -11,11 +11,14 @@ const FloatingNav = ({ categoriesRef, productsRef, statsRef }) => {
       
       if (categoriesRef?.current && productsRef?.current && statsRef?.current) {
         const categoriesTop = categoriesRef.current.offsetTop;
+        const storesTop = storesRef?.current ? storesRef.current.offsetTop : null;
         const productsTop = productsRef.current.offsetTop;
         const statsTop = statsRef.current.offsetTop;
         
         if (scrollPosition >= statsTop) {
           setActiveSection('stats');
+        } else if (storesTop !== null && scrollPosition >= storesTop && scrollPosition < productsTop) {
+          setActiveSection('stores');
         } else if (scrollPosition >= productsTop) {
           setActiveSection('products');
         } else if (scrollPosition >= categoriesTop) {
@@ -84,6 +87,26 @@ const FloatingNav = ({ categoriesRef, productsRef, statsRef }) => {
               </svg>
               <span className="absolute right-full mr-4 px-3 py-2 text-xs bg-slate-900 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">
                 📂 Categories
+              </span>
+            </button>
+          )}
+
+          {/* Stores */}
+          {storesRef?.current && (
+            <button
+              onClick={() => scrollToSection(storesRef, 'stores')}
+              className={`p-3 rounded-xl transition-all duration-200 group relative ${
+                activeSection === 'stores' 
+                  ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-200' 
+                  : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'
+              }`}
+              title="Browse stores"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9l1-4a1 1 0 011-.75h14a1 1 0 011 .75l1 4M4 9h16v10a1 1 0 01-1 1h-5v-5H10v5H5a1 1 0 01-1-1V9z" />
+              </svg>
+              <span className="absolute right-full mr-4 px-3 py-2 text-xs bg-slate-900 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">
+                🏬 Stores
               </span>
             </button>
           )}

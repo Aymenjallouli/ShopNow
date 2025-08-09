@@ -41,5 +41,6 @@ class UserMeView(APIView):
             'zip_code': getattr(user, 'zip_code', ''),
             'date_of_birth': getattr(user, 'date_of_birth', ''),
             'is_staff': user.is_staff,
+            'role': getattr(user, 'role', 'customer'),
         }
         return Response(data)

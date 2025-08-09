@@ -58,7 +58,7 @@ export const PerformanceProvider = ({ children }) => {
   // Observer les mutations DOM pour détecter les re-renders excessifs
   useEffect(() => {
     const observer = new MutationObserver((mutations) => {
-      if (mutations.length > 10) {
+      if (mutations.length > 30) {
         console.warn(`⚠️ High DOM mutations detected: ${mutations.length}`);
       }
     });

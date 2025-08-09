@@ -195,7 +195,8 @@ const Checkout = () => {
         navigate('/profile', { 
           state: { 
             orderSuccess: true,
-            orderId: result.order?.id || 'unknown'
+            orderId: result.order?.id || 'unknown',
+            activeTab: 'orders'
           } 
         });
       })

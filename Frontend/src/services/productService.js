@@ -6,11 +6,73 @@ export const productService = {
   getProducts: async (params = {}) => {
     try {
       const response = await api.get('/products/', { params });
-      return response.data;
+      const data = response.data || {};
+      if (!Array.isArray(data.categories)) {
+        if (Array.isArray(data.category_list)) data.categories = data.category_list;
+        else if (Array.isArray(data.results)) data.categories = data.results; // unlikely but fallback
+        else data.categories = [];
+      }
+      if (!Array.isArray(data.products)) data.products = Array.isArray(data.results) ? data.results : [];
+      return data;
     } catch (error) {
       console.error('Error fetching products:', error);
       // Ne jamais retourner de données statiques, retourner un tableau vide à la place
       return { products: [], categories: [] };
+    }
+  },
+
+  // Create a new product (shop inferred by backend)
+  createProduct: async (productData) => {
+    try {
+      const response = await api.post('/products/', productData);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating product:', error);
+      throw error;
+    }
+  },
+
+  // Update a product
+  updateProduct: async (id, data) => {
+    try {
+      const response = await api.put(`/products/${id}/`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating product:', error);
+      throw error;
+    }
+  },
+
+  // Delete a product
+  deleteProduct: async (id) => {
+    try {
+      await api.delete(`/products/${id}/`);
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      throw error;
+    }
+  },
+
+  // Fetch only products of the authenticated shop owner
+  getMyProducts: async (shopId) => {
+    try {
+      const response = await api.get('/products/my/', { params: shopId ? { shop: shopId } : {} });
+      return response.data.products || [];
+    } catch (error) {
+      console.error('Error fetching my products:', error);
+      return [];
+    }
+  },
+
+  // Create category (dedup handled server-side; existing returned if duplicate)
+  createCategory: async (data) => {
+    try {
+      const response = await api.post('/categories/', data);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating category:', error);
+      throw error;
     }
   },
 

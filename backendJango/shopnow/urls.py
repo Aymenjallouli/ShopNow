@@ -16,10 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from shops.views import ShopViewSet
 from rest_framework_simplejwt.views import TokenRefreshView
 from accounts.jwt_views import CustomTokenObtainPairView
 
 from .admin_stats import AdminStatsView
+
+router = DefaultRouter()
+router.register(r'shops', ShopViewSet, basename='shop')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,6 +35,7 @@ urlpatterns = [
     path('api/categories/', include('categories.urls')),
     path('api/wishlist/', include('wishlist.urls')),
     path('api/payments/', include('payments.urls')),
+    path('api/', include(router.urls)),
     path('api/admin/stats/', AdminStatsView.as_view(), name='admin-stats'),
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

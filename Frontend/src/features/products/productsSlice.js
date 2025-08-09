@@ -142,54 +142,6 @@ export const deleteProductReview = createAsyncThunk(
   }
 );
 
-// Data mocking for testing reviews when backend is not available
-const generateMockReviews = (productId) => {
-  const userNames = ['John Doe', 'Alice Smith', 'Robert Johnson', 'Emma Wilson', 'Michael Brown'];
-  const reviewTitles = [
-    'Très satisfait de mon achat',
-    'Excellent rapport qualité-prix',
-    'Livraison rapide et produit conforme',
-    'Bon produit mais quelques défauts',
-    'Je recommande ce produit'
-  ];
-  const comments = [
-    'Ce produit est exactement ce que je cherchais. La qualité est excellente et le prix très raisonnable.',
-    'J\'ai reçu ma commande rapidement et le produit fonctionne parfaitement. Je suis très satisfait.',
-    'Bonne qualité générale, mais quelques petits défauts de finition. Dans l\'ensemble, je suis satisfait.',
-    'Excellent produit, je le recommande vivement. Le service client a également été très réactif.',
-    'Le produit correspond parfaitement à la description. Je suis très content de mon achat.'
-  ];
-  
-  // Generate 0-5 random reviews
-  const count = Math.floor(Math.random() * 6);
-  const reviews = [];
-  
-  for (let i = 0; i < count; i++) {
-    const rating = Math.floor(Math.random() * 3) + 3; // 3-5 stars for positive bias
-    const userIndex = Math.floor(Math.random() * userNames.length);
-    const titleIndex = Math.floor(Math.random() * reviewTitles.length);
-    const commentIndex = Math.floor(Math.random() * comments.length);
-    
-    // Create a date within the last 30 days
-    const date = new Date();
-    date.setDate(date.getDate() - Math.floor(Math.random() * 30));
-    
-    reviews.push({
-      id: Date.now() + i,
-      rating,
-      title: reviewTitles[titleIndex],
-      comment: comments[commentIndex],
-      created_at: date.toISOString(),
-      user: {
-        id: 1000 + i,
-        name: userNames[userIndex]
-      },
-      product: productId
-    });
-  }
-  
-  return reviews;
-};
 
 const productsSlice = createSlice({
   name: 'products',
@@ -201,6 +153,23 @@ const productsSlice = createSlice({
     resetSingleProduct: (state) => {
       state.singleProduct = null;
     },
+    updateProductsStock: (state, action) => {
+      const updates = action.payload; // [{product_id?, id?, remaining_stock, status}]
+      if (!Array.isArray(updates)) return;
+      updates.forEach(u => {
+        const pid = u.product_id || u.id;
+        if (!pid) return;
+        const prod = state.products.find(p => p.id === pid);
+        if (prod) {
+          if (typeof u.remaining_stock === 'number') prod.stock = u.remaining_stock;
+          if (u.status) prod.status = u.status;
+        }
+        if (state.singleProduct && state.singleProduct.id === pid) {
+          if (typeof u.remaining_stock === 'number') state.singleProduct.stock = u.remaining_stock;
+          if (u.status) state.singleProduct.status = u.status;
+        }
+      });
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -210,8 +179,9 @@ const productsSlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.products = action.payload.products;
-        state.categories = action.payload.categories;
+        const data = action.payload || {};
+        state.products = Array.isArray(data.products) ? data.products : [];
+        state.categories = Array.isArray(data.categories) ? data.categories : (Array.isArray(data.category_list) ? data.category_list : []);
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.status = 'failed';
@@ -224,25 +194,10 @@ const productsSlice = createSlice({
       })
       .addCase(fetchProductById.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        
-        // Ensure we have a product and set default reviews if needed
         const product = action.payload;
-        
-        // If reviews are missing or empty, generate mock reviews for testing purposes
-        if (!product.reviews || product.reviews.length === 0) {
-          console.log('Using mock reviews for testing purposes');
-          product.reviews = generateMockReviews(product.id);
-          
-          // Calculate average rating
-          if (product.reviews.length > 0) {
-            const ratings = product.reviews.map(review => review.rating);
-            const sum = ratings.reduce((acc, rating) => acc + rating, 0);
-            product.rating = sum / ratings.length;
-          } else {
-            product.rating = 0;
-          }
-        }
-        
+        // Guarantee arrays & numeric rating without injecting fake data
+        if (!Array.isArray(product.reviews)) product.reviews = [];
+        if (typeof product.rating !== 'number') product.rating = 0;
         state.singleProduct = product;
       })
       .addCase(fetchProductById.rejected, (state, action) => {
@@ -255,28 +210,18 @@ const productsSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
-        state.categories = Array.isArray(action.payload) && action.payload.length > 0 
-          ? action.payload 
-          : [
-              { id: 1, name: 'Electronics' },
-              { id: 2, name: 'Clothing' },
-              { id: 3, name: 'Home & Kitchen' },
-              { id: 4, name: 'Books' },
-              { id: 5, name: 'Sports & Outdoors' },
-            ];
+        const payload = action.payload;
+        let list = [];
+        if (Array.isArray(payload)) list = payload;
+        else if (payload && Array.isArray(payload.results)) list = payload.results;
+        else if (payload && Array.isArray(payload.categories)) list = payload.categories; // fallback if different key
+        state.categories = list;
         state.status = 'succeeded';
       })
       .addCase(fetchCategories.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
-        // Fallback categories en cas d'erreur
-        state.categories = [
-          { id: 1, name: 'Electronics' },
-          { id: 2, name: 'Clothing' },
-          { id: 3, name: 'Home & Kitchen' },
-          { id: 4, name: 'Books' },
-          { id: 5, name: 'Sports & Outdoors' },
-        ];
+        state.categories = [];
       })
       
       // Search products
@@ -312,6 +257,11 @@ const productsSlice = createSlice({
           const sum = ratings.reduce((acc, rating) => acc + rating, 0);
           state.singleProduct.rating = sum / ratings.length;
         }
+        // Also update list product rating to reflect new review without full refetch
+        const prodInList = state.products.find(p => p.id === action.payload.product || (state.singleProduct && p.id === state.singleProduct.id));
+        if (prodInList && state.singleProduct) {
+          prodInList.rating = state.singleProduct.rating;
+        }
       })
       .addCase(addProductReview.rejected, (state, action) => {
         state.status = 'failed';
@@ -335,6 +285,10 @@ const productsSlice = createSlice({
           const ratings = state.singleProduct.reviews.map(review => review.rating);
           const sum = ratings.reduce((acc, rating) => acc + rating, 0);
           state.singleProduct.rating = sum / ratings.length;
+        }
+        const prodInList = state.products.find(p => state.singleProduct && p.id === state.singleProduct.id);
+        if (prodInList && state.singleProduct) {
+          prodInList.rating = state.singleProduct.rating;
         }
       })
       .addCase(updateProductReview.rejected, (state, action) => {
@@ -363,6 +317,10 @@ const productsSlice = createSlice({
             state.singleProduct.rating = 0;
           }
         }
+        const prodInList = state.products.find(p => state.singleProduct && p.id === state.singleProduct.id);
+        if (prodInList && state.singleProduct) {
+          prodInList.rating = state.singleProduct.rating;
+        }
       })
       .addCase(deleteProductReview.rejected, (state, action) => {
         state.status = 'failed';
@@ -371,5 +329,5 @@ const productsSlice = createSlice({
   },
 });
 
-export const { clearProductError, resetSingleProduct } = productsSlice.actions;
+export const { clearProductError, resetSingleProduct, updateProductsStock } = productsSlice.actions;
 export default productsSlice.reducer;

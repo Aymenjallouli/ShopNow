@@ -68,8 +68,10 @@ const CategoryManagement = () => {
     const fetchCategories = async () => {
       try {
         setLoading(true);
-        const response = await api.get('/categories/');
-        setCategories(response.data);
+  const response = await api.get('/categories/');
+  const data = response.data;
+  const list = Array.isArray(data) ? data : (Array.isArray(data?.results) ? data.results : []);
+  setCategories(list);
         setError(null);
       } catch (err) {
         setError('Failed to fetch categories');
@@ -251,7 +253,7 @@ const CategoryManagement = () => {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-slate-200">
-                        {categories.map((category) => (
+                        {Array.isArray(categories) ? categories.map((category) => (
                           <tr 
                             key={category.id} 
                             className={`hover:bg-slate-50/50 transition-all duration-200 ${
@@ -308,7 +310,11 @@ const CategoryManagement = () => {
                               </div>
                             </td>
                           </tr>
-                        ))}
+                        )) : (
+                          <tr>
+                            <td colSpan={4} className="px-6 py-8 text-center text-sm text-slate-500">Aucune catégorie disponible</td>
+                          </tr>
+                        )}
                       </tbody>
                     </table>
                   </div>

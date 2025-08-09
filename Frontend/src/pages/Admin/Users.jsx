@@ -18,6 +18,7 @@ const UserManagement = () => {
     username: '',
     status: 'active',
     is_staff: false,
+  role: 'customer',
   });
 
   // Fetch users
@@ -25,8 +26,10 @@ const UserManagement = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const response = await api.get('/users/');
-        setUsers(response.data);
+  const response = await api.get('/users/');
+  const data = response.data;
+  const list = Array.isArray(data) ? data : (Array.isArray(data?.results) ? data.results : []);
+  setUsers(list);
         setError(null);
       } catch (err) {
         setError('Failed to fetch users');
@@ -49,6 +52,7 @@ const UserManagement = () => {
         username: selectedUser.username || '',
         status: selectedUser.status || 'active',
         is_staff: Boolean(selectedUser.is_staff),
+  role: selectedUser.role || 'customer',
       });
     }
   }, [selectedUser, isEditing]);
@@ -67,6 +71,7 @@ const UserManagement = () => {
       username: selectedUserData.username || '',
       status: selectedUserData.status || 'active',
       is_staff: Boolean(selectedUserData.is_staff),
+  role: selectedUserData.role || 'customer',
     });
     setIsEditing(true);
   };
@@ -184,7 +189,7 @@ const UserManagement = () => {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {users.map((user) => (
+                        {Array.isArray(users) ? users.map((user) => (
                           <tr
                             key={user.id}
                             className={`hover:bg-emerald-50 transition-colors duration-150 ${
@@ -229,29 +234,34 @@ const UserManagement = () => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                user.is_staff
-                                  ? 'bg-slate-100 text-slate-800'
-                                  : 'bg-emerald-100 text-emerald-800'
+                                user.is_staff ? 'bg-slate-100 text-slate-800' : user.role === 'shop_owner' ? 'bg-indigo-100 text-indigo-800' : 'bg-emerald-100 text-emerald-800'
                               }`}>
-                                {user.is_staff ? 'Admin' : 'User'}
+                                {user.is_staff ? 'Admin' : user.role === 'shop_owner' ? 'Shop Owner' : 'Client'}
                               </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                              <button
-                                onClick={() => handleSelectUser(user)}
-                                className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 rounded-lg text-xs font-medium transition-colors duration-200"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => handleDeleteUser(user.id)}
-                                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-medium transition-colors duration-200"
-                              >
-                                Delete
-                              </button>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <div className="flex items-center gap-3">
+                                <button
+                                  onClick={() => handleSelectUser(user)}
+                                  className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors hover:underline"
+                                >
+                                  Edit
+                                </button>
+                                <span className="text-slate-300">|</span>
+                                <button
+                                  onClick={() => handleDeleteUser(user.id)}
+                                  className="text-red-600 hover:text-red-700 font-medium transition-colors hover:underline"
+                                >
+                                  Delete
+                                </button>
+                              </div>
                             </td>
                           </tr>
-                        ))}
+                        )) : (
+                          <tr>
+                            <td colSpan={5} className="px-6 py-8 text-center text-sm text-slate-500">Aucun utilisateur</td>
+                          </tr>
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -284,155 +294,140 @@ const UserManagement = () => {
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                    {/* Debug: Show selected user data */}
-                    {selectedUser && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4">
-                        <p className="text-xs font-semibold text-blue-800 mb-2">Debug - Données utilisateur:</p>
-                        <pre className="text-xs text-blue-700 overflow-x-auto">
-                          {JSON.stringify(selectedUser, null, 2)}
-                        </pre>
+                    {/* SECTION: Identité */}
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-semibold tracking-wide text-slate-600 mb-2 uppercase">Prénom</label>
+                          <input
+                            type="text"
+                            name="first_name"
+                            value={formData.first_name}
+                            onChange={handleInputChange}
+                            placeholder="Entrez le prénom"
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white/80 text-sm text-slate-800 placeholder:text-slate-400 caret-emerald-600 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold tracking-wide text-slate-600 mb-2 uppercase">Nom</label>
+                          <input
+                            type="text"
+                            name="last_name"
+                            value={formData.last_name}
+                            onChange={handleInputChange}
+                            placeholder="Entrez le nom"
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white/80 text-sm text-slate-800 placeholder:text-slate-400 caret-emerald-600 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition"
+                          />
+                        </div>
                       </div>
-                    )}
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-2">
-                          Prénom
-                        </label>
-                        <input
-                          type="text"
-                          name="first_name"
-                          value={formData.first_name}
-                          onChange={handleInputChange}
-                          placeholder="Entrez le prénom"
-                          className="w-full px-4 py-3 rounded-xl border-slate-200 bg-slate-50/50 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:bg-white text-sm transition-all duration-200"
-                        />
-                        {/* Debug: Show current value */}
-                        {selectedUser && (
-                          <p className="text-xs text-slate-400 mt-1">
-                            Valeur actuelle: "{formData.first_name}" | DB: "{selectedUser.first_name}"
-                          </p>
-                        )}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-2">
-                          Nom
-                        </label>
-                        <input
-                          type="text"
-                          name="last_name"
-                          value={formData.last_name}
-                          onChange={handleInputChange}
-                          placeholder="Entrez le nom"
-                          className="w-full px-4 py-3 rounded-xl border-slate-200 bg-slate-50/50 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:bg-white text-sm transition-all duration-200"
-                        />
-                        {/* Debug: Show current value */}
-                        {selectedUser && (
-                          <p className="text-xs text-slate-400 mt-1">
-                            Valeur actuelle: "{formData.last_name}" | DB: "{selectedUser.last_name}"
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">
-                        Adresse Email
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          placeholder="utilisateur@exemple.com"
-                          className="w-full px-4 py-3 pl-10 rounded-xl border-slate-200 bg-slate-50/50 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:bg-white text-sm transition-all duration-200"
-                        />
-                        <svg className="absolute left-3 top-3.5 h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                        </svg>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">
-                        Nom d'utilisateur
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          name="username"
-                          value={formData.username}
-                          onChange={handleInputChange}
-                          placeholder="nom_utilisateur"
-                          className="w-full px-4 py-3 pl-10 rounded-xl border-slate-200 bg-slate-50/50 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:bg-white text-sm transition-all duration-200"
-                        />
-                        <svg className="absolute left-3 top-3.5 h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">
-                        Statut du compte
-                      </label>
-                      <select
-                        name="status"
-                        value={formData.status}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 rounded-xl border-slate-200 bg-slate-50/50 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:bg-white text-sm transition-all duration-200"
-                      >
-                        <option value="active">🟢 Actif</option>
-                        <option value="inactive">🔴 Inactif</option>
-                        <option value="suspended">⏸️ Suspendu</option>
-                      </select>
-                    </div>
-                    
-                    <div className="bg-slate-50 rounded-xl p-4">
-                      <div className="flex items-center">
-                        <input
-                          type="checkbox"
-                          name="is_staff"
-                          checked={formData.is_staff}
-                          onChange={handleInputChange}
-                          className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 focus:ring-offset-0"
-                        />
-                        <div className="ml-3">
-                          <label className="text-sm font-semibold text-slate-700">
-                            Privilèges administrateur
-                          </label>
-                          <p className="text-xs text-slate-500 mt-1">
-                            Accorder l'accès complet au tableau de bord admin
-                          </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-semibold tracking-wide text-slate-600 mb-2 uppercase">Email</label>
+                          <div className="relative">
+                            <input
+                              type="email"
+                              name="email"
+                              value={formData.email}
+                              onChange={handleInputChange}
+                              placeholder="utilisateur@exemple.com"
+                              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white/80 text-sm text-slate-800 placeholder:text-slate-400 caret-emerald-600 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition"
+                            />
+                            <svg className="absolute left-3 top-3.5 h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold tracking-wide text-slate-600 mb-2 uppercase">Nom d'utilisateur</label>
+                          <div className="relative">
+                            <input
+                              type="text"
+                              name="username"
+                              value={formData.username}
+                              onChange={handleInputChange}
+                              placeholder="nom_utilisateur"
+                              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white/80 text-sm text-slate-800 placeholder:text-slate-400 caret-emerald-600 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition"
+                            />
+                            <svg className="absolute left-3 top-3.5 h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </div>
                         </div>
                       </div>
                     </div>
-                    
-                    <div className="flex justify-end space-x-3 pt-6 border-t border-slate-200">
+
+                    {/* SECTION: Permissions */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold tracking-wide text-slate-600 mb-2 uppercase">Rôle</label>
+                        <select
+                          name="role"
+                          value={formData.role}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white/80 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 shadow-sm transition"
+                        >
+                          <option value="customer">Client</option>
+                          <option value="shop_owner">Shop Owner</option>
+                        </select>
+                        <p className="text-[11px] text-slate-400 mt-1">Cochez Admin pour les privilèges complets.</p>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold tracking-wide text-slate-600 mb-2 uppercase">Statut</label>
+                        <select
+                          name="status"
+                          value={formData.status}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white/80 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 shadow-sm transition"
+                        >
+                          <option value="active">🟢 Actif</option>
+                          <option value="inactive">🔴 Inactif</option>
+                          <option value="suspended">⏸️ Suspendu</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-slate-50 to-white rounded-xl p-4 border border-slate-200/70">
+                      <div className="flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          name="is_staff"
+                          id="is_staff"
+                          checked={formData.is_staff}
+                          onChange={handleInputChange}
+                          className="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 focus:ring-offset-0"
+                        />
+                        <div>
+                          <label htmlFor="is_staff" className="text-sm font-semibold text-slate-700">Privilèges administrateur</label>
+                          <p className="text-xs text-slate-500 mt-1 leading-relaxed">Octroie l'accès complet au tableau de bord d'administration et aux actions sensibles.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ACTIONS */}
+                    <div className="flex flex-col sm:flex-row sm:justify-end gap-3 pt-6 border-t border-slate-200">
                       <button
                         type="button"
                         onClick={() => {
                           setIsEditing(false);
                           setSelectedUser(null);
                         }}
-                        className="px-6 py-3 text-sm font-semibold text-slate-700 bg-white border-2 border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 shadow-sm"
+                        className="inline-flex justify-center items-center px-6 py-3 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:ring-offset-0 transition shadow-sm"
                       >
                         Annuler
                       </button>
                       <button
                         type="submit"
                         disabled={loading}
-                        className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/25"
+                        className="inline-flex justify-center items-center px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-emerald-500 rounded-xl hover:from-emerald-500 hover:to-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                       >
                         {loading ? (
-                          <div className="flex items-center">
+                          <>
                             <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                             Sauvegarde...
-                          </div>
+                          </>
                         ) : (
                           'Sauvegarder les modifications'
                         )}

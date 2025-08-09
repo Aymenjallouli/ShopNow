@@ -199,14 +199,15 @@ const ProductReviews = ({ productId, reviews = [] }) => {
         {!hasUserReviewed && isAuthenticated && (
           <button
             onClick={toggleReviewForm}
-            className={`inline-flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
-              showForm 
+            disabled={hasUserReviewed}
+            className={`inline-flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed ${
+              showForm
                 ? 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                 : 'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-300 transform hover:scale-105'
             } mt-3 sm:mt-0`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              {showForm 
+              {showForm
                 ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               }
@@ -248,7 +249,7 @@ const ProductReviews = ({ productId, reviews = [] }) => {
         {reviews.length === 0 ? (
           <div>
             {showForm ? (
-              <div id="review-form" className="mb-8 border-2 border-emerald-100 rounded-lg p-1 animate-pulse">
+              <div id="review-form" className="mb-8 border-2 border-emerald-100 rounded-lg p-1 bg-white">
                 <ReviewForm 
                   productId={productId} 
                   reviewToEdit={editingReview}
@@ -295,7 +296,7 @@ const ProductReviews = ({ productId, reviews = [] }) => {
             
             {/* Review Form */}
             {showForm && (
-              <div id="review-form" className="mb-8 border-2 border-emerald-100 rounded-lg p-1 animate-pulse">
+              <div id="review-form" className="mb-8 border-2 border-emerald-100 rounded-lg p-1 bg-white">
                 <ReviewForm 
                   productId={productId}
                   reviewToEdit={editingReview}

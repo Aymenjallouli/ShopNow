@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts, fetchCategories } from '../features/products/productsSlice';
+import { fetchShops } from '../features/shops/shopsSlice';
 import ProductCard from '../components/ProductCard/ProductCard';
 import CategoryFilter from '../components/CategoryFilter';
 import CategorySection from '../components/CategorySection';
@@ -9,6 +10,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import Hero from '../components/Hero';
 import StatsSection from '../components/StatsSection';
 import FloatingNav from '../components/FloatingNav';
+import BrowseStores from '../components/BrowseStores';
 import Footer from '../components/Footer';
 import { useOptimizedProducts } from '../hooks/useOptimizedSelectors';
 import { useDebounce } from '../hooks/useOptimizedHooks';
@@ -28,13 +30,16 @@ const Home = memo(() => {
 
   // Refs for smooth scrolling
   const categoriesRef = useRef(null);
+  const storesRef = useRef(null);
   const productsRef = useRef(null);
   const statsRef = useRef(null);
 
+  const { list: shops, loading: shopsLoading, error: shopsError } = useSelector(s=>s.shops);
+
   useEffect(() => {
     dispatch(fetchProducts());
-    // Fetch categories if not already loaded
     dispatch(fetchCategories());
+    if(!shops || !shops.length) dispatch(fetchShops());
   }, [dispatch]);
 
   // Hero button handlers - memoized
@@ -55,9 +60,13 @@ const Home = memo(() => {
   // OPTIMISATION MAJEURE: Memoization des produits filtrés avec debounce
   const filteredProducts = useMemo(() => {
     if (!Array.isArray(products)) return [];
-    
+    // Build a map of inactive shop ids for instant filtering without full refetch
+    const inactiveShopIds = new Set((shops || []).filter(sh => sh.is_active === false).map(sh => sh.id));
     return products.filter(product => {
       if (!product) return false;
+      // Hide product if its shop is now inactive (either via flag from API or via shops slice)
+      if (product.shop_is_active === false) return false;
+      if (product.shop_id && inactiveShopIds.has(product.shop_id)) return false;
       
       // Category filter
       const matchesCategory = selectedCategory === 'all' || 
@@ -96,7 +105,7 @@ const Home = memo(() => {
           return (a.name || '').localeCompare(b.name || '');
       }
     });
-  }, [products, selectedCategory, debouncedSearchQuery, debouncedPriceRange, stockFilter, sortBy]);  const handleSearchChange = (e) => {
+  }, [products, selectedCategory, debouncedSearchQuery, debouncedPriceRange, stockFilter, sortBy, shops]);  const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
 
@@ -158,7 +167,12 @@ const Home = memo(() => {
           />
         </div>
         
-        {/* Products Section */}
+        {/* Browse Stores Section */}
+        <div ref={storesRef}>
+          <BrowseStores shops={shops} loading={shopsLoading} error={shopsError} limit={shops.length || 8} showAll />
+        </div>
+
+  {/* Products Section */}
         <div ref={productsRef} className="mb-8">
           <div className="flex justify-between items-center mb-8">
             <div>
@@ -422,6 +436,7 @@ const Home = memo(() => {
       {/* Floating Navigation */}
       <FloatingNav 
         categoriesRef={categoriesRef}
+        storesRef={storesRef}
         productsRef={productsRef}
         statsRef={statsRef}
       />

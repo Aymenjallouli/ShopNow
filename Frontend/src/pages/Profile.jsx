@@ -32,7 +32,9 @@ const Profile = () => {
     if (location.state?.orderSuccess) {
       toast.success('Your order was placed successfully!');
     }
-    
+    if (location.state?.activeTab === 'orders' || location.state?.orderSuccess) {
+      setActiveTab('orders');
+    }
     // Fetch user profile and orders
     dispatch(getUserProfile());
     dispatch(fetchUserOrders());

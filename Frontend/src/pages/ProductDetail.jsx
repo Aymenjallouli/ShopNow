@@ -52,7 +52,7 @@ const ProductDetail = () => {
     return <ErrorMessage message="Product not found" />;
   }
 
-  const { name, price, description, images, stock, rating, reviews, category } = singleProduct;
+  const { name, price, description, images, stock, rating, reviews, category, shop_id, shop_name } = singleProduct;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -90,9 +90,17 @@ const ProductDetail = () => {
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold text-slate-800">{name}</h1>
-            <p className="text-sm text-emerald-600 bg-emerald-50 inline-block px-2 py-1 rounded-md mt-2">
-              {category?.name || 'Uncategorized'}
-            </p>
+            <div className='flex flex-wrap items-center gap-3 mt-2'>
+              <p className="text-sm text-emerald-600 bg-emerald-50 inline-block px-2 py-1 rounded-md">
+                {category?.name || 'Uncategorized'}
+              </p>
+              {shop_id && (
+                <button onClick={()=>navigate(`/shops/${shop_id}`)} className='text-xs px-2 py-1 rounded-md bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-medium flex items-center gap-1'>
+                  <svg className='w-3.5 h-3.5' fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' d='M3 7l9-4 9 4-9 4-9-4v10a2 2 0 002 2h14a2 2 0 002-2V7'/></svg>
+                  {shop_name || 'Voir shop'}
+                </button>
+              )}
+            </div>
           </div>
           
           <div className="flex items-center justify-between">

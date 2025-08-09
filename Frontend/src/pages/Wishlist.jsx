@@ -9,6 +9,7 @@ import ErrorMessage from '../components/ErrorMessage';
 const Wishlist = () => {
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector((state) => state.wishlist);
+  const safeItems = Array.isArray(items) ? items : [];
   const { isAuthenticated } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -84,10 +85,10 @@ const Wishlist = () => {
         </div>
 
         {/* Actions Bar */}
-        {items.length > 0 && (
+  {safeItems.length > 0 && (
           <div className="flex justify-between items-center mb-8">
             <div className="text-slate-600">
-              <span className="font-medium">{items.length}</span> item{items.length !== 1 ? 's' : ''} in your wishlist
+              <span className="font-medium">{safeItems.length}</span> item{safeItems.length !== 1 ? 's' : ''} in your wishlist
             </div>
             <button
               onClick={handleClearWishlist}
@@ -101,7 +102,7 @@ const Wishlist = () => {
           </div>
         )}
 
-        {items.length === 0 ? (
+  {safeItems.length === 0 ? (
           <div className="text-center max-w-md mx-auto">
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
               <div className="w-20 h-20 bg-gradient-to-r from-emerald-100 to-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -128,7 +129,7 @@ const Wishlist = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {items.map((item) => (
+            {safeItems.map((item) => (
               <div
                 key={item.id}
                 className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden hover:shadow-2xl hover:scale-105 transition-all duration-300 group"

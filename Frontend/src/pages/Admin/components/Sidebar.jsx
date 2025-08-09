@@ -23,6 +23,7 @@ const Sidebar = () => {
     { name: 'Users', href: '/admin/users', icon: UserIcon },
     { name: 'Products', href: '/admin/products', icon: ShoppingBagIcon },
     { name: 'Categories', href: '/admin/categories', icon: TagIcon },
+  { name: 'Shops', href: '/admin/shops', icon: ShoppingBagIcon },
     { name: 'Orders', href: '/admin/orders', icon: CurrencyDollarIcon },
   ];
   
