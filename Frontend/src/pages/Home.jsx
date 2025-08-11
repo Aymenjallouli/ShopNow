@@ -1,21 +1,23 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts, fetchCategories } from '../features/products/productsSlice';
 import { fetchShops } from '../features/shops/shopsSlice';
 import ProductCard from '../components/ProductCard/ProductCard';
-import CategoryFilter from '../components/CategoryFilter';
-import CategorySection from '../components/CategorySection';
-import Loader from '../components/Loader';
-import ErrorMessage from '../components/ErrorMessage';
-import Hero from '../components/Hero';
-import StatsSection from '../components/StatsSection';
-import FloatingNav from '../components/FloatingNav';
-import BrowseStores from '../components/BrowseStores';
-import Footer from '../components/Footer';
+import CategoryFilter from '../components/products/CategoryFilter';
+import CategorySection from '../components/products/CategorySection';
+import Loader from '../components/shared/Loader';
+import ErrorMessage from '../components/shared/ErrorMessage';
+import Hero from '../components/shared/Hero';
+import StatsSection from '../components/shared/StatsSection';
+import FloatingNav from '../components/navigation/FloatingNav';
+import BrowseStores from '../components/products/BrowseStores';
+// Footer is now imported in App.jsx only
 import { useOptimizedProducts } from '../hooks/useOptimizedSelectors';
 import { useDebounce } from '../hooks/useOptimizedHooks';
 
 const Home = memo(() => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const { products, categories, status, error } = useOptimizedProducts(); // Sélecteur optimisé
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -176,8 +178,8 @@ const Home = memo(() => {
         <div ref={productsRef} className="mb-8">
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-2">Our Products</h1>
-              <p className="text-lg text-slate-600">Discover our amazing collection</p>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-2">{t('home.productsTitle')}</h1>
+              <p className="text-lg text-slate-600">{t('home.productsSubtitle')}</p>
             </div>
             <button
               onClick={clearAllFilters}
@@ -186,7 +188,7 @@ const Home = memo(() => {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              Clear All Filters
+              {t('home.clearAllFilters')}
             </button>
           </div>
           
@@ -201,11 +203,11 @@ const Home = memo(() => {
                 </div>
                 <div>
                   <p className="text-lg font-bold text-slate-900">
-                    <span className="text-2xl text-emerald-600">{filteredProducts.length}</span> product{filteredProducts.length !== 1 ? 's' : ''} found
+                    {t('home.productsFound', { count: filteredProducts.length })}
                   </p>
                   {selectedCategory !== 'all' && (
                     <p className="text-sm text-slate-600">
-                      in <span className="font-semibold text-emerald-700">{categories.find(c => c.id.toString() === selectedCategory)?.name}</span>
+                      {t('home.in')} <span className="font-semibold text-emerald-700">{categories.find(c => c.id.toString() === selectedCategory)?.name}</span>
                     </p>
                   )}
                 </div>
@@ -215,13 +217,13 @@ const Home = memo(() => {
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-2 bg-white/70 backdrop-blur-sm px-3 py-2 rounded-xl border border-emerald-200">
                     <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-medium text-emerald-700">Filters Active</span>
+                    <span className="text-sm font-medium text-emerald-700">{t('home.filtersActive')}</span>
                   </div>
                   <button
                     onClick={clearAllFilters}
                     className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors duration-200"
                   >
-                    Clear all
+                    {t('home.clear')}
                   </button>
                 </div>
               )}
@@ -241,19 +243,19 @@ const Home = memo(() => {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-slate-900">Smart Filters</h3>
-                      <p className="text-sm text-slate-600">Find exactly what you need</p>
+                      <h3 className="text-xl font-bold text-slate-900">{t('home.smartFilters')}</h3>
+                      <p className="text-sm text-slate-600">{t('home.findExactly')}</p>
                     </div>
                   </div>
                 </div>
                 
                 {/* Search */}
                 <div className="mb-6">
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Search Products</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">{t('home.searchProducts')}</label>
                   <div className="relative">
                     <input
                       type="text"
-                      placeholder="Search by name or description..."
+                      placeholder={t('home.searchPlaceholder')}
                       className="w-full px-4 py-3 pl-11 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-slate-700 placeholder-slate-400 transition-all duration-200"
                       value={searchQuery}
                       onChange={handleSearchChange}
@@ -268,14 +270,14 @@ const Home = memo(() => {
                 
                 {/* Category Filter */}
                 <div className="mb-6">
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Category</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">{t('home.category')}</label>
                   <div className="relative">
                     <select
                       value={selectedCategory}
                       onChange={(e) => handleCategoryChange(e.target.value)}
                       className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-slate-700 appearance-none cursor-pointer transition-all duration-200"
                     >
-                      <option value="all">All Categories</option>
+                      <option value="all">{t('home.allCategories')}</option>
                       {categories.map((cat) => (
                         <option key={cat.id} value={cat.id.toString()}>
                           {cat.name}
@@ -292,17 +294,17 @@ const Home = memo(() => {
                 
                 {/* Stock Filter */}
                 <div className="mb-6">
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Availability</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">{t('home.availability')}</label>
                   <div className="relative">
                     <select
                       value={stockFilter}
                       onChange={(e) => handleStockFilterChange(e.target.value)}
                       className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-slate-700 appearance-none cursor-pointer transition-all duration-200"
                     >
-                      <option value="all">All Products</option>
-                      <option value="in-stock">✅ In Stock (5+)</option>
-                      <option value="low-stock">⚠️ Low Stock (1-5)</option>
-                      <option value="out-of-stock">❌ Out of Stock</option>
+                      <option value="all">{t('home.allProducts')}</option>
+                      <option value="in-stock">{t('home.inStock')}</option>
+                      <option value="low-stock">{t('home.lowStock')}</option>
+                      <option value="out-of-stock">{t('home.outOfStock')}</option>
                     </select>
                     <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
                       <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -314,17 +316,17 @@ const Home = memo(() => {
                 
                 {/* Sort By */}
                 <div className="mb-6">
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Sort By</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">{t('home.sortBy')}</label>
                   <div className="relative">
                     <select
                       value={sortBy}
                       onChange={(e) => handleSortChange(e.target.value)}
                       className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-slate-700 appearance-none cursor-pointer transition-all duration-200"
                     >
-                      <option value="name">📝 Name (A-Z)</option>
-                      <option value="price-low">💰 Price: Low to High</option>
-                      <option value="price-high">💎 Price: High to Low</option>
-                      <option value="stock">📦 Stock: High to Low</option>
+                      <option value="name">{t('home.nameAZ')}</option>
+                      <option value="price-low">{t('home.priceLow')}</option>
+                      <option value="price-high">{t('home.priceHigh')}</option>
+                      <option value="stock">{t('home.stockHigh')}</option>
                     </select>
                     <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
                       <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -338,13 +340,13 @@ const Home = memo(() => {
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-slate-700 mb-3 flex items-center space-x-2">
                     <span>💵</span>
-                    <span>Price Range</span>
+                    <span>{t('home.priceRange')}</span>
                   </label>
                   <div className="space-y-3">
                     <div className="relative">
                       <input
                         type="number"
-                        placeholder="Min price"
+                        placeholder={t('home.minPrice')}
                         value={priceRange.min}
                         onChange={(e) => handlePriceRangeChange('min', e.target.value)}
                         className="w-full px-4 py-3 pl-8 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-slate-700 transition-all duration-200"
@@ -354,7 +356,7 @@ const Home = memo(() => {
                     <div className="relative">
                       <input
                         type="number"
-                        placeholder="Max price"
+                        placeholder={t('home.maxPrice')}
                         value={priceRange.max}
                         onChange={(e) => handlePriceRangeChange('max', e.target.value)}
                         className="w-full px-4 py-3 pl-8 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-slate-700 transition-all duration-200"
@@ -372,7 +374,7 @@ const Home = memo(() => {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  Reset All Filters
+                  {t('home.resetAllFilters')}
                 </button>
               </div>
             </div>
@@ -392,17 +394,17 @@ const Home = memo(() => {
                         <span className="text-sm">🔍</span>
                       </div>
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 mb-3">No products found</h3>
+                    <h3 className="text-xl font-bold text-slate-900 mb-3">{t('home.noProductsFound')}</h3>
                     <p className="text-slate-600 mb-8 leading-relaxed">
-                      We couldn't find any products matching your criteria. <br />
-                      Try adjusting your filters or search terms.
+                      {t('home.noProductsFoundDesc')} <br />
+                      {t('home.tryAdjusting')}
                     </p>
                     <div className="space-y-3">
                       <button
                         onClick={clearAllFilters}
                         className="w-full px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold rounded-xl shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-300 transform hover:scale-105 transition-all duration-200"
                       >
-                        🔄 Clear All Filters
+                        🔄 {t('home.clearAllFilters')}
                       </button>
                       <button
                         onClick={() => {
@@ -411,7 +413,7 @@ const Home = memo(() => {
                         }}
                         className="w-full px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-colors duration-200"
                       >
-                        🏠 Browse All Products
+                        🏠 {t('home.browseAllProducts')}
                       </button>
                     </div>
                   </div>

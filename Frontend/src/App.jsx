@@ -6,36 +6,39 @@ import { fetchCart } from './features/cart/cartSlice';
 import { fetchWishlist } from './features/wishlist/wishlistSlice';
 
 // Layout components (non lazy car toujours nécessaires)
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import Loader from './components/Loader';
-import ScrollToTop from './components/ScrollToTop';
+
+import Navbar from './components/navigation/Navbar';
+import Footer from './components/shared/Footer';
+import Loader from './components/shared/Loader';
+import ScrollToTop from './components/shared/ScrollToTop';
 
 // Pages avec lazy loading pour le code splitting
 const Home = lazy(() => import('./pages/Home'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
 const Cart = lazy(() => import('./pages/Cart'));
 const Checkout = lazy(() => import('./pages/Checkout'));
-const PaymentTest = lazy(() => import('./pages/PaymentTest'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
-const Profile = lazy(() => import('./pages/Profile'));
+const Profile = lazy(() => import('./components/shared/Profile'));
 const Wishlist = lazy(() => import('./pages/Wishlist'));
 const MyShop = lazy(() => import('./pages/MyShop'));
+const CustomerCredits = lazy(() => import('./components/credit/CustomerCredits'));
+const CreditManagement = lazy(() => import('./components/credit/CreditManagement'));
+const OrdersManagement = lazy(() => import('./components/orders/OrdersManagement'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
-const FAQ = lazy(() => import('./pages/FAQ'));
+const FAQ = lazy(() => import('./components/shared/FAQ'));
 const TrackingPage = lazy(() => import('./pages/TrackingPage'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const ShopDetail = lazy(()=> import('./pages/ShopDetail'));
 
 // Admin pages avec lazy loading
-const AdminDashboard = lazy(() => import('./pages/Admin/Dashboard'));
-const AdminUsers = lazy(() => import('./pages/Admin/Users'));
-import AdminProducts from './pages/Admin/Products';
-import AdminCategories from './pages/Admin/Categories';
-import AdminOrders from './pages/Admin/Orders';
-import AdminShops from './pages/Admin/Shops';
+const AdminDashboard = lazy(() => import('./components/admin/Dashboard'));
+const AdminUsers = lazy(() => import('./components/admin/Users'));
+const AdminProducts = lazy(() => import('./components/admin/Products'));
+const AdminCategories = lazy(() => import('./components/admin/Categories'));
+const AdminOrders = lazy(() => import('./components/admin/Orders'));
+const AdminShops = lazy(() => import('./components/admin/Shops'));
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -116,7 +119,6 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/faq" element={<FAQ />} />
-          <Route path="/payment-test" element={<PaymentTest />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
@@ -142,6 +144,30 @@ function App() {
             element={
               <ProtectedRoute>
                 <Wishlist />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/my-credits" 
+            element={
+              <ProtectedRoute>
+                <CustomerCredits />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/credit-management" 
+            element={
+              <ProtectedRoute>
+                <CreditManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/orders-management" 
+            element={
+              <ProtectedRoute>
+                <OrdersManagement />
               </ProtectedRoute>
             } 
           />

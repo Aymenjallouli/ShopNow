@@ -1,6 +1,6 @@
 
 import React, { Suspense, lazy } from 'react';
-import Loader from './Loader';
+import Loader from '../components/shared/Loader';
 
 const LazyRoute = ({ component: Component, ...props }) => {
   const LazyComponent = lazy(() => import(Component));

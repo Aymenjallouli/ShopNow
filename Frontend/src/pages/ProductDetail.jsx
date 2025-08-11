@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById } from '../features/products/productsSlice';
@@ -9,13 +10,14 @@ import {
   TruckIcon, 
   ArrowPathIcon 
 } from '@heroicons/react/24/outline';
-import Loader from '../components/Loader';
-import ErrorMessage from '../components/ErrorMessage';
-import ProductReviews from '../components/ProductReviews';
-import WishlistButton from '../components/WishlistButton';
+import Loader from '../components/shared/Loader';
+import ErrorMessage from '../components/shared/ErrorMessage';
+import ProductReviews from '../components/products/ProductReviews';
+import WishlistButton from '../components/products/WishlistButton';
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { singleProduct, status, error } = useSelector((state) => state.products);
@@ -49,7 +51,7 @@ const ProductDetail = () => {
   }
 
   if (!singleProduct) {
-    return <ErrorMessage message="Product not found" />;
+    return <ErrorMessage message={t('product.not_found')} />;
   }
 
   const { name, price, description, images, stock, rating, reviews, category, shop_id, shop_name } = singleProduct;
@@ -92,12 +94,12 @@ const ProductDetail = () => {
             <h1 className="text-3xl font-bold text-slate-800">{name}</h1>
             <div className='flex flex-wrap items-center gap-3 mt-2'>
               <p className="text-sm text-emerald-600 bg-emerald-50 inline-block px-2 py-1 rounded-md">
-                {category?.name || 'Uncategorized'}
+                {category?.name || t('product.uncategorized')}
               </p>
               {shop_id && (
                 <button onClick={()=>navigate(`/shops/${shop_id}`)} className='text-xs px-2 py-1 rounded-md bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-medium flex items-center gap-1'>
                   <svg className='w-3.5 h-3.5' fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' d='M3 7l9-4 9 4-9 4-9-4v10a2 2 0 002 2h14a2 2 0 002-2V7'/></svg>
-                  {shop_name || 'Voir shop'}
+                  {shop_name || t('product.view_shop')}
                 </button>
               )}
             </div>
@@ -117,7 +119,7 @@ const ProductDetail = () => {
                 <span className="font-medium">{rating ? rating.toFixed(1) : '0.0'}</span>
                 <span className="mx-1">•</span>
                 <span className="hover:underline cursor-pointer" onClick={() => document.getElementById('reviews-section').scrollIntoView({ behavior: 'smooth' })}>
-                  {reviews?.length || 0} avis
+                  {t('product.reviews_count', { count: reviews?.length || 0 })}
                 </span>
               </p>
             </div>
@@ -125,15 +127,15 @@ const ProductDetail = () => {
           </div>
           
           <div>
-            <h2 className="sr-only">Product information</h2>
+            <h2 className="sr-only">{t('product.information')}</h2>
             <p className="text-3xl font-bold text-slate-900 bg-slate-50 px-4 py-2 rounded-lg inline-block">
-              <span className="text-emerald-600">$</span>
+              <span className="text-emerald-600">{t('product.currency')}</span>
               <span>{typeof price === 'number' ? price.toFixed(2) : parseFloat(price) ? parseFloat(price).toFixed(2) : price}</span>
             </p>
           </div>
           
           <div>
-            <h3 className="text-sm font-medium text-gray-900">Description</h3>
+            <h3 className="text-sm font-medium text-gray-900">{t('product.description')}</h3>
             <div className="mt-2 text-sm text-gray-700 space-y-2">
               <p>{description}</p>
             </div>
@@ -141,18 +143,18 @@ const ProductDetail = () => {
           
           <div className="border-t border-gray-200 pt-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-slate-700">Stock Status</h3>
+              <h3 className="text-sm font-medium text-slate-700">{t('product.stock_status')}</h3>
               {stock <= 0 ? (
                 <span className="text-sm font-medium text-rose-600 bg-rose-50 px-2 py-1 rounded-lg">
-                  Out of stock
+                  {t('product.out_of_stock')}
                 </span>
               ) : stock <= 5 ? (
                 <span className="text-sm font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">
-                  Low stock ({stock} available)
+                  {t('product.low_stock', { count: stock })}
                 </span>
               ) : (
                 <span className="text-sm font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">
-                  In stock ({stock} available)
+                  {t('product.in_stock', { count: stock })}
                 </span>
               )}
             </div>
@@ -161,7 +163,7 @@ const ProductDetail = () => {
           {stock > 0 && (
             <div className="flex items-center space-x-3">
               <label htmlFor="quantity" className="text-sm font-medium text-slate-700">
-                Quantité:
+                {t('product.quantity')}:
               </label>
               <select
                 id="quantity"
@@ -193,7 +195,7 @@ const ProductDetail = () => {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-              <span>Add to Cart</span>
+              <span>{t('product.add_to_cart')}</span>
             </button>
             <button
               type="button"
@@ -208,22 +210,22 @@ const ProductDetail = () => {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-              <span>Buy Now</span>
+              <span>{t('product.buy_now')}</span>
             </button>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
             <div className="flex items-center space-x-2 bg-slate-50 p-3 rounded-lg">
               <TruckIcon className="h-5 w-5 text-emerald-500" />
-              <span className="text-sm text-slate-600">Free shipping over $50</span>
+              <span className="text-sm text-slate-600">{t('product.free_shipping')}</span>
             </div>
             <div className="flex items-center space-x-2 bg-slate-50 p-3 rounded-lg">
               <ArrowPathIcon className="h-5 w-5 text-emerald-500" />
-              <span className="text-sm text-slate-600">30-day returns</span>
+              <span className="text-sm text-slate-600">{t('product.returns')}</span>
             </div>
             <div className="flex items-center space-x-2 bg-slate-50 p-3 rounded-lg">
               <ShieldCheckIcon className="h-5 w-5 text-emerald-500" />
-              <span className="text-sm text-slate-600">Secure payment</span>
+              <span className="text-sm text-slate-600">{t('product.secure_payment')}</span>
             </div>
           </div>
         </div>

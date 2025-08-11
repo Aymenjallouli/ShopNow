@@ -1,11 +1,13 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { login, fetchCurrentUser } from '../features/auth/authSlice';
-import Loader from '../components/Loader';
-import ErrorMessage from '../components/ErrorMessage';
+import Loader from '../components/shared/Loader';
+import ErrorMessage from '../components/shared/ErrorMessage';
 
 const Login = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -43,13 +45,12 @@ const Login = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     
     if (!formData.email) {
-      errors.email = 'L\'email est requis';
+      errors.email = t('login.errors.emailRequired');
     } else if (!emailRegex.test(formData.email)) {
-      errors.email = 'Veuillez entrer une adresse email valide';
+      errors.email = t('login.errors.emailInvalid');
     }
-    
     if (!formData.password) {
-      errors.password = 'Le mot de passe est requis';
+      errors.password = t('login.errors.passwordRequired');
     }
     
     setFormErrors(errors);
@@ -91,8 +92,8 @@ const Login = () => {
           } else {
             // Erreur générique
             setFormErrors({
-              email: "Identifiants invalides",
-              password: "Identifiants invalides"
+              email: t('login.errors.invalidCredentials'),
+              password: t('login.errors.invalidCredentials')
             });
           }
         });
@@ -111,19 +112,19 @@ const Login = () => {
             </div>
           </div>
           <h1 className="text-3xl font-extrabold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-            Connexion à votre compte
+            {t('login.title')}
           </h1>
           <p className="mt-2 text-sm text-slate-600">
-            Ou{' '}
+            {t('login.or')}{' '}
             <Link to="/register" className="font-medium text-emerald-600 hover:text-emerald-500 transition-colors duration-200">
-              créer un nouveau compte
+              {t('login.createAccount')}
             </Link>
           </p>
         </div>
         
         {status === 'failed' && (
           <div className="p-4 border border-red-200 bg-red-50 rounded-xl shadow-sm">
-            <h3 className="text-sm font-medium text-red-800">Échec de connexion</h3>
+            <h3 className="text-sm font-medium text-red-800">{t('login.failedTitle')}</h3>
             <div className="mt-2 text-sm text-red-700">
               {error && typeof error === 'object' ? (
                 <ul className="list-disc pl-5 space-y-1">
@@ -132,7 +133,7 @@ const Login = () => {
                   ))}
                 </ul>
               ) : (
-                <p>{typeof error === 'string' ? error : "Email ou mot de passe incorrect"}</p>
+                <p>{typeof error === 'string' ? error : t('login.errors.emailOrPasswordIncorrect')}</p>
               )}
             </div>
           </div>
@@ -143,7 +144,7 @@ const Login = () => {
             <div className="space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
-                  Adresse email
+                  {t('login.form.email')}
                 </label>
                 <input
                   id="email"
@@ -157,7 +158,7 @@ const Login = () => {
                       ? 'border-red-300 focus:ring-red-200' 
                       : 'border-slate-200 focus:ring-emerald-200 focus:border-emerald-300'
                   }`}
-                  placeholder="Adresse email"
+                  placeholder={t('login.form.emailPlaceholder')}
                 />
                 {formErrors.email && (
                   <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
@@ -165,7 +166,7 @@ const Login = () => {
               </div>
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
-                  Mot de passe
+                  {t('login.form.password')}
                 </label>
                 <input
                   id="password"
@@ -179,7 +180,7 @@ const Login = () => {
                       ? 'border-red-300 focus:ring-red-200' 
                       : 'border-slate-200 focus:ring-emerald-200 focus:border-emerald-300'
                   }`}
-                  placeholder="Mot de passe"
+                  placeholder={t('login.form.passwordPlaceholder')}
                 />
                 {formErrors.password && (
                   <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>
@@ -197,13 +198,13 @@ const Login = () => {
                 className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300 rounded transition-colors duration-200"
               />
               <label htmlFor="remember-me" className="ml-2 block text-sm text-slate-700">
-                Se souvenir de moi
+                {t('login.form.rememberMe')}
               </label>
             </div>
             
             <div className="text-sm">
               <a href="#" className="font-medium text-emerald-600 hover:text-emerald-500 transition-colors duration-200">
-                Mot de passe oublié?
+                {t('login.form.forgotPassword')}
               </a>
             </div>
           </div>
@@ -217,7 +218,7 @@ const Login = () => {
               {status === 'loading' ? (
                 <Loader size="sm" />
               ) : (
-                'Se connecter'
+                t('login.form.submit')
               )}
             </button>
           </div>

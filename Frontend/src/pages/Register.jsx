@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { register } from '../features/auth/authSlice';
-import Loader from '../components/Loader';
-import ErrorMessage from '../components/ErrorMessage';
+import Loader from '../components/shared/Loader';
+import ErrorMessage from '../components/shared/ErrorMessage';
 
 const Register = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -13,7 +15,7 @@ const Register = () => {
     last_name: '',
     password: '',
     password2: '',
-  role: 'customer',
+    role: 'customer',
   });
   const [formErrors, setFormErrors] = useState({});
   
@@ -40,33 +42,26 @@ const Register = () => {
   const validateForm = () => {
     const errors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
     if (!formData.first_name.trim()) {
-      errors.first_name = 'Le prénom est requis';
+      errors.first_name = t('register.errors.firstNameRequired');
     }
-    
     if (!formData.last_name.trim()) {
-      errors.last_name = 'Le nom est requis';
+      errors.last_name = t('register.errors.lastNameRequired');
     }
-    
-    // Username est optionnel, aucune validation nécessaire
-    
+    // Username est optionnel
     if (!formData.email) {
-      errors.email = 'L\'email est requis';
+      errors.email = t('register.errors.emailRequired');
     } else if (!emailRegex.test(formData.email)) {
-      errors.email = 'Veuillez entrer une adresse email valide';
+      errors.email = t('register.errors.emailInvalid');
     }
-    
     if (!formData.password) {
-      errors.password = 'Le mot de passe est requis';
+      errors.password = t('register.errors.passwordRequired');
     } else if (formData.password.length < 8) {
-      errors.password = 'Le mot de passe doit contenir au moins 8 caractères';
+      errors.password = t('register.errors.passwordMinLength');
     }
-    
     if (formData.password !== formData.password2) {
-      errors.password2 = 'Les mots de passe ne correspondent pas';
+      errors.password2 = t('register.errors.passwordsDontMatch');
     }
-    
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -84,17 +79,15 @@ const Register = () => {
         .unwrap()
         .then(() => {
           // Afficher un message de succès avant la redirection
-          alert('Inscription réussie! Vous pouvez maintenant vous connecter.');
+          alert(t('register.success'));
           navigate('/login');
         })
         .catch((error) => {
           console.log("Erreur d'inscription:", error);
-          
           // Si l'erreur concerne un email déjà utilisé, afficher un message spécifique
           if (error && error.email && error.email.includes("déjà utilisée")) {
-            alert(`Cette adresse email est déjà utilisée. Veuillez utiliser une autre adresse email ou vous connecter avec celle-ci.`);
+            alert(t('register.emailUsed'));
           }
-          
           // Error is handled by the auth slice
         });
     }
@@ -112,19 +105,19 @@ const Register = () => {
             </div>
           </div>
           <h1 className="text-3xl font-extrabold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-            Créer votre compte
+            {t('register.title')}
           </h1>
           <p className="mt-2 text-sm text-slate-600">
-            Ou{' '}
+            {t('register.or')}{' '}
             <Link to="/login" className="font-medium text-emerald-600 hover:text-emerald-500 transition-colors duration-200">
-              connectez-vous à votre compte existant
+              {t('register.loginLink')}
             </Link>
           </p>
         </div>
         
         {status === 'failed' && (
           <div className="p-4 border border-red-200 bg-red-50 rounded-xl shadow-sm">
-            <h3 className="text-sm font-medium text-red-800">Échec de l'inscription</h3>
+            <h3 className="text-sm font-medium text-red-800">{t('register.failedTitle')}</h3>
             <div className="mt-2 text-sm text-red-700">
               {error && typeof error === 'object' ? (
                 <ul className="list-disc pl-5 space-y-1">
@@ -143,9 +136,9 @@ const Register = () => {
           <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
             <div className="space-y-4">
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-slate-700 mb-1">
-                  Nom d'utilisateur (optionnel)
-                </label>
+                  <label htmlFor="username" className="block text-sm font-medium text-slate-700 mb-1">
+                    {t('register.form.username')}
+                  </label>
                 <input
                   id="username"
                   name="username"
@@ -158,7 +151,7 @@ const Register = () => {
                       ? 'border-red-300 focus:ring-red-200' 
                       : 'border-slate-200 focus:ring-emerald-200 focus:border-emerald-300'
                   }`}
-                  placeholder="Nom d'utilisateur (optionnel)"
+                  placeholder={t('register.form.usernamePlaceholder')}
                 />
                 {formErrors.username && (
                   <p className="mt-1 text-sm text-red-600">{formErrors.username}</p>
@@ -166,9 +159,9 @@ const Register = () => {
               </div>
               
               <div>
-                <label htmlFor="first_name" className="block text-sm font-medium text-slate-700 mb-1">
-                  Prénom
-                </label>
+                  <label htmlFor="first_name" className="block text-sm font-medium text-slate-700 mb-1">
+                    {t('register.form.firstName')}
+                  </label>
                 <input
                   id="first_name"
                   name="first_name"
@@ -181,7 +174,7 @@ const Register = () => {
                       ? 'border-red-300 focus:ring-red-200' 
                       : 'border-slate-200 focus:ring-emerald-200 focus:border-emerald-300'
                   }`}
-                  placeholder="Prénom"
+                  placeholder={t('register.form.firstNamePlaceholder')}
                 />
                 {formErrors.first_name && (
                   <p className="mt-1 text-sm text-red-600">{formErrors.first_name}</p>
@@ -189,9 +182,9 @@ const Register = () => {
               </div>
               
               <div>
-                <label htmlFor="last_name" className="block text-sm font-medium text-slate-700 mb-1">
-                  Nom
-                </label>
+                  <label htmlFor="last_name" className="block text-sm font-medium text-slate-700 mb-1">
+                    {t('register.form.lastName')}
+                  </label>
                 <input
                   id="last_name"
                   name="last_name"
@@ -204,7 +197,7 @@ const Register = () => {
                       ? 'border-red-300 focus:ring-red-200' 
                       : 'border-slate-200 focus:ring-emerald-200 focus:border-emerald-300'
                   }`}
-                  placeholder="Nom"
+                  placeholder={t('register.form.lastNamePlaceholder')}
                 />
                 {formErrors.last_name && (
                   <p className="mt-1 text-sm text-red-600">{formErrors.last_name}</p>
@@ -212,9 +205,9 @@ const Register = () => {
               </div>
               
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
-                  Adresse email
-                </label>
+                  <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+                    {t('register.form.email')}
+                  </label>
                 <input
                   id="email"
                   name="email"
@@ -227,7 +220,7 @@ const Register = () => {
                       ? 'border-red-300 focus:ring-red-200' 
                       : 'border-slate-200 focus:ring-emerald-200 focus:border-emerald-300'
                   }`}
-                  placeholder="Adresse email"
+                  placeholder={t('register.form.emailPlaceholder')}
                 />
                 {formErrors.email && (
                   <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
@@ -235,9 +228,9 @@ const Register = () => {
               </div>
               
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
-                  Mot de passe
-                </label>
+                  <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
+                    {t('register.form.password')}
+                  </label>
                 <input
                   id="password"
                   name="password"
@@ -250,7 +243,7 @@ const Register = () => {
                       ? 'border-red-300 focus:ring-red-200' 
                       : 'border-slate-200 focus:ring-emerald-200 focus:border-emerald-300'
                   }`}
-                  placeholder="Mot de passe"
+                  placeholder={t('register.form.passwordPlaceholder')}
                 />
                 {formErrors.password && (
                   <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>
@@ -258,9 +251,9 @@ const Register = () => {
               </div>
               
               <div>
-                <label htmlFor="password2" className="block text-sm font-medium text-slate-700 mb-1">
-                  Confirmer le mot de passe
-                </label>
+                  <label htmlFor="password2" className="block text-sm font-medium text-slate-700 mb-1">
+                    {t('register.form.password2')}
+                  </label>
                 <input
                   id="password2"
                   name="password2"
@@ -273,7 +266,7 @@ const Register = () => {
                       ? 'border-red-300 focus:ring-red-200' 
                       : 'border-slate-200 focus:ring-emerald-200 focus:border-emerald-300'
                   }`}
-                  placeholder="Confirmer le mot de passe"
+                  placeholder={t('register.form.password2Placeholder')}
                 />
                 {formErrors.password2 && (
                   <p className="mt-1 text-sm text-red-600">{formErrors.password2}</p>
@@ -281,7 +274,7 @@ const Register = () => {
               </div>
               <div>
                 <label htmlFor="role" className="block text-sm font-medium text-slate-700 mb-1">
-                  Rôle
+                  {t('register.form.role')}
                 </label>
                 <select
                   id="role"
@@ -290,8 +283,8 @@ const Register = () => {
                   onChange={handleChange}
                   className="w-full px-4 py-3 border rounded-lg bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:border-transparent border-slate-200 focus:ring-emerald-200 focus:border-emerald-300"
                 >
-                  <option value="customer">Client</option>
-                  <option value="shop_owner">Shop Owner</option>
+                  <option value="customer">{t('register.form.roleCustomer')}</option>
+                  <option value="shop_owner">{t('register.form.roleShopOwner')}</option>
                 </select>
               </div>
             </div>
@@ -306,7 +299,7 @@ const Register = () => {
               {status === 'loading' ? (
                 <Loader size="sm" />
               ) : (
-                'Créer compte'
+                t('register.form.submit')
               )}
             </button>
           </div>

@@ -111,6 +111,22 @@ class Order(models.Model):
     payment_method = models.CharField(max_length=50, blank=True)
     payment_intent_id = models.CharField(max_length=120, blank=True)
 
+    # Nouveau: support paiement en espèce et achat à crédit (pay later)
+    CREDIT_STATUS_CHOICES = [
+        ('none', 'None'),
+        ('requested', 'Requested'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    credit_status = models.CharField(max_length=20, choices=CREDIT_STATUS_CHOICES, default='none')
+    credit_decision_at = models.DateTimeField(null=True, blank=True)
+    credit_decision_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='credit_decisions')
+    credit_note = models.TextField(blank=True)
+    # Si tous les produits viennent d'un seul shop on le référence pour approbation (sinon crédit refusé au moment de la création)
+    shop = models.ForeignKey('shops.Shop', null=True, blank=True, on_delete=models.SET_NULL, related_name='orders')
+    # Date prévue pour le paiement en différé (pour les commandes à crédit)
+    payment_due_date = models.DateField(null=True, blank=True)
+
     shipping_address = models.TextField(blank=True)
     phone_number = models.CharField(max_length=30, blank=True)
 

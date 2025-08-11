@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
@@ -7,14 +8,22 @@ import {
   removeFromCart
 } from '../features/cart/cartSlice';
 import { TrashIcon } from '@heroicons/react/24/outline';
-import Loader from '../components/Loader';
-import ErrorMessage from '../components/ErrorMessage';
+import Loader from '../components/shared/Loader';
+import ErrorMessage from '../components/shared/ErrorMessage';
+import { orderService } from '../services/orderService';
+import { useState } from 'react';
 
 const Cart = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { items, status, error, totalItems, totalPrice } = useSelector((state) => state.cart);
   const { isAuthenticated } = useSelector((state) => state.auth);
+  const [creating, setCreating] = useState(false);
+  const [quickError, setQuickError] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
+  const [showCreditForm, setShowCreditForm] = useState(false);
+  const [paymentDueDate, setPaymentDueDate] = useState('');
   
   useEffect(() => {
     if (isAuthenticated) {
@@ -38,6 +47,51 @@ const Cart = () => {
       navigate('/login', { state: { from: '/checkout' } });
     }
   };
+
+  const buildItemsPayload = () => (
+    items.map(i => ({
+      product: i.product.id,
+      quantity: i.quantity,
+      price: i.product.price,
+    }))
+  );
+
+  const handleQuickOrder = async (type) => {
+    if (!isAuthenticated) {
+      return navigate('/login', { state: { from: '/cart' } });
+    }
+    
+    if (type === 'credit' && !paymentDueDate) {
+      setQuickError(t('cart.creditDateRequired'));
+      return;
+    }
+    
+    setQuickError(null); setSuccessMsg(null);
+    setCreating(true);
+    try {
+      const payloadItems = buildItemsPayload();
+      let order;
+      if (type === 'cod') {
+        order = await orderService.createCashOnDelivery(payloadItems);
+  setSuccessMsg(t('cart.codSuccess'));
+      } else if (type === 'credit') {
+        order = await orderService.createCreditRequest(payloadItems, paymentDueDate);
+        if (order.credit_status === 'requested') {
+          setSuccessMsg(t('cart.creditRequested'));
+        } else {
+          setSuccessMsg(t('cart.orderCreated'));
+        }
+        setShowCreditForm(false);
+        setPaymentDueDate('');
+      }
+      // Option: redirect to profile orders after short delay
+      setTimeout(() => navigate('/profile?tab=orders'), 1200);
+    } catch (e) {
+  setQuickError(e?.response?.data?.error || t('cart.orderFailed'));
+    } finally {
+      setCreating(false);
+    }
+  };
   
   if (status === 'loading') {
     return <Loader />;
@@ -59,10 +113,10 @@ const Cart = () => {
                 </svg>
               </div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-slate-800 bg-clip-text text-transparent mb-4">
-                Your Cart is Empty
+                {t('cart.emptyTitle')}
               </h1>
               <p className="text-slate-600 mb-8 leading-relaxed">
-                Looks like you haven't added any products to your cart yet. Start exploring our amazing products!
+                {t('cart.emptyDesc')}
               </p>
               <Link
                 to="/"
@@ -71,7 +125,7 @@ const Cart = () => {
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
-                Start Shopping
+                {t('cart.startShopping')}
               </Link>
             </div>
           </div>
@@ -86,10 +140,10 @@ const Cart = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-slate-800 bg-clip-text text-transparent mb-4">
-            Shopping Cart
+            {t('cart.title')}
           </h1>
           <p className="text-slate-600 text-lg">
-            Review your items and proceed to checkout when ready
+            {t('cart.desc')}
           </p>
         </div>
         
@@ -98,7 +152,7 @@ const Cart = () => {
           <div className="lg:col-span-2">
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
               <div className="p-6 border-b border-slate-200/50">
-                <h2 className="text-xl font-semibold text-slate-800">Cart Items ({items.length})</h2>
+                <h2 className="text-xl font-semibold text-slate-800">{t('cart.itemsTitle', {count: items.length})}</h2>
               </div>
               <ul className="divide-y divide-slate-200/50">
                 {items.map((item) => (
@@ -134,10 +188,10 @@ const Cart = () => {
                               </Link>
                             </h3>
                             <p className="text-slate-500 text-sm mb-1">
-                              Unit Price: ${typeof item.product.price === 'number' ? item.product.price.toFixed(2) : parseFloat(item.product.price || 0).toFixed(2)}
+                              {t('cart.unitPrice')}: ${typeof item.product.price === 'number' ? item.product.price.toFixed(2) : parseFloat(item.product.price || 0).toFixed(2)}
                             </p>
                             <p className="text-sm text-slate-400">
-                              In Stock: {item.product.stock} items
+                              {t('cart.inStock', {count: item.product.stock})}
                             </p>
                           </div>
                           
@@ -153,7 +207,7 @@ const Cart = () => {
                         {/* Quantity Controls and Remove Button */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center">
-                            <label className="text-sm font-medium text-slate-600 mr-4">Quantity:</label>
+                            <label className="text-sm font-medium text-slate-600 mr-4">{t('cart.quantity')}:</label>
                             <div className="flex items-center bg-white/80 border border-slate-200 rounded-lg shadow-sm">
                               <button
                                 type="button"
@@ -188,7 +242,7 @@ const Cart = () => {
                             onClick={() => handleRemoveItem(item.id)}
                           >
                             <TrashIcon className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform duration-200" />
-                            <span className="text-sm font-medium">Remove</span>
+                            <span className="text-sm font-medium">{t('cart.remove')}</span>
                           </button>
                         </div>
                       </div>
@@ -202,25 +256,25 @@ const Cart = () => {
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 sticky top-6">
-              <h2 className="text-2xl font-bold text-slate-800 mb-6">Order Summary</h2>
+              <h2 className="text-2xl font-bold text-slate-800 mb-6">{t('cart.summaryTitle')}</h2>
               
               <div className="space-y-4 mb-6">
                 <div className="flex items-center justify-between py-3 border-b border-slate-200/50">
-                  <span className="text-slate-600">Subtotal ({totalItems} items)</span>
+                  <span className="text-slate-600">{t('cart.subtotal', {count: totalItems})}</span>
                   <span className="font-semibold text-slate-800">
                     ${typeof totalPrice === 'number' ? totalPrice.toFixed(2) : parseFloat(totalPrice || 0).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-slate-200/50">
-                  <span className="text-slate-600">Shipping</span>
-                  <span className="text-slate-500 text-sm">Calculated at checkout</span>
+                  <span className="text-slate-600">{t('cart.shipping')}</span>
+                  <span className="text-slate-500 text-sm">{t('cart.calculatedAtCheckout')}</span>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-slate-200/50">
-                  <span className="text-slate-600">Tax</span>
-                  <span className="text-slate-500 text-sm">Calculated at checkout</span>
+                  <span className="text-slate-600">{t('cart.tax')}</span>
+                  <span className="text-slate-500 text-sm">{t('cart.calculatedAtCheckout')}</span>
                 </div>
                 <div className="flex items-center justify-between py-4 border-t-2 border-emerald-200">
-                  <span className="text-xl font-bold text-slate-800">Total</span>
+                  <span className="text-xl font-bold text-slate-800">{t('cart.total')}</span>
                   <span className="text-2xl font-bold text-emerald-600">
                     ${typeof totalPrice === 'number' ? totalPrice.toFixed(2) : parseFloat(totalPrice || 0).toFixed(2)}
                   </span>
@@ -237,9 +291,74 @@ const Cart = () => {
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                   </svg>
-                  Proceed to Checkout
+                  {t('cart.proceedToCheckout')}
                 </span>
               </button>
+
+              {/* Quick Payment Alternatives */}
+              <div className="space-y-3 mb-4">
+                <div className="text-xs font-semibold tracking-wide text-slate-500 uppercase">{t('cart.otherOptions')}</div>
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    disabled={creating}
+                    onClick={() => handleQuickOrder('cod')}
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-emerald-200 bg-white text-sm font-medium text-emerald-700 hover:bg-emerald-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {creating && <span className="h-4 w-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />}
+                    {t('cart.cod')}
+                  </button>
+                  
+                  {!showCreditForm ? (
+                    <button
+                      type="button"
+                      disabled={creating}
+                      onClick={() => setShowCreditForm(true)}
+                      className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-indigo-200 bg-white text-sm font-medium text-indigo-700 hover:bg-indigo-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {t('cart.credit')}
+                    </button>
+                  ) : (
+                    <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200 space-y-3">
+                      <h4 className="font-medium text-indigo-900 text-sm">{t('cart.creditRequestTitle')}</h4>
+                      <div>
+                        <label className="block text-xs font-medium text-indigo-700 mb-1">
+                          {t('cart.creditDateLabel')}
+                        </label>
+                        <input
+                          type="date"
+                          value={paymentDueDate}
+                          onChange={(e) => setPaymentDueDate(e.target.value)}
+                          min={new Date().toISOString().split('T')[0]}
+                          className="w-full px-3 py-2 text-sm border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                      </div>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleQuickOrder('credit')}
+                          disabled={creating || !paymentDueDate}
+                          className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm rounded-md transition-colors"
+                        >
+                          {creating && <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+                          {creating ? t('cart.sending') : t('cart.send')}
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowCreditForm(false);
+                            setPaymentDueDate('');
+                          }}
+                          disabled={creating}
+                          className="px-3 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors"
+                        >
+                          {t('cart.cancel')}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {quickError && <p className="text-xs text-red-600">{quickError}</p>}
+                {successMsg && <p className="text-xs text-emerald-600">{successMsg}</p>}
+              </div>
               
               {/* Continue Shopping */}
               <div className="text-center">
@@ -250,7 +369,7 @@ const Cart = () => {
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
-                  Continue Shopping
+                  {t('cart.continueShopping')}
                 </Link>
               </div>
             </div>

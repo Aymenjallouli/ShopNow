@@ -5,6 +5,9 @@ import orderService from '../../services/orderService';
 const initialState = {
   orders: [],
   currentOrder: null,
+  shopOwnerOrders: [],
+  shopOwnerRegularOrders: [],
+  creditRequests: [],
   status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
   error: null,
 };
@@ -23,6 +26,48 @@ export const fetchUserOrders = createAsyncThunk(
         error.message ||
         'Failed to fetch orders';
       
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Shop owner: fetch orders tied to owned shops
+export const fetchShopOwnerOrders = createAsyncThunk(
+  'orders/fetchShopOwnerOrders',
+  async (params = {}, thunkAPI) => {
+    try {
+      const orders = await orderService.getShopOwnerOrders(params);
+      return orders;
+    } catch (error) {
+      const message = error.response?.data?.error || error.message || 'Failed to fetch shop owner orders';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Shop owner: fetch regular orders (excluding credits)
+export const fetchShopOwnerRegularOrders = createAsyncThunk(
+  'orders/fetchShopOwnerRegularOrders',
+  async (params = {}, thunkAPI) => {
+    try {
+      const orders = await orderService.getShopOwnerRegularOrders(params);
+      return orders;
+    } catch (error) {
+      const message = error.response?.data?.error || error.message || 'Failed to fetch shop owner regular orders';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Shop owner: fetch credit requests
+export const fetchCreditRequests = createAsyncThunk(
+  'orders/fetchCreditRequests',
+  async (_, thunkAPI) => {
+    try {
+      const orders = await orderService.getCreditRequests();
+      return orders;
+    } catch (error) {
+      const message = error.response?.data?.error || error.message || 'Failed to fetch credit requests';
       return thunkAPI.rejectWithValue(message);
     }
   }
@@ -125,6 +170,48 @@ const ordersSlice = createSlice({
   state.orders.unshift(orderObj);
       })
       .addCase(createOrder.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      });
+
+    // Shop owner orders
+    builder
+      .addCase(fetchShopOwnerOrders.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchShopOwnerOrders.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.shopOwnerOrders = action.payload;
+      })
+      .addCase(fetchShopOwnerOrders.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      });
+
+    // Shop owner regular orders
+    builder
+      .addCase(fetchShopOwnerRegularOrders.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchShopOwnerRegularOrders.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.shopOwnerRegularOrders = action.payload;
+      })
+      .addCase(fetchShopOwnerRegularOrders.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      });
+
+    // Credit requests
+    builder
+      .addCase(fetchCreditRequests.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchCreditRequests.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.creditRequests = action.payload;
+      })
+      .addCase(fetchCreditRequests.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       });

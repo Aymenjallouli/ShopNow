@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { fetchWishlist, removeFromWishlist, clearWishlist } from '../features/wishlist/wishlistSlice';
 import { addToCart } from '../features/cart/cartSlice';
-import Loader from '../components/Loader';
-import ErrorMessage from '../components/ErrorMessage';
+import Loader from '../components/shared/Loader';
+import ErrorMessage from '../components/shared/ErrorMessage';
 
 const Wishlist = () => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const { items, loading, error } = useSelector((state) => state.wishlist);
   const safeItems = Array.isArray(items) ? items : [];
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -42,10 +44,10 @@ const Wishlist = () => {
                 </svg>
               </div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-slate-800 bg-clip-text text-transparent mb-4">
-                Login Required
+                {t('wishlist.login_required')}
               </h1>
               <p className="text-slate-600 mb-8 leading-relaxed">
-                Please login to view and manage your wishlist items.
+                {t('wishlist.please_login')}
               </p>
               <Link
                 to="/login"
@@ -54,7 +56,7 @@ const Wishlist = () => {
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                 </svg>
-                Login Now
+                {t('wishlist.login_now')}
               </Link>
             </div>
           </div>
@@ -77,10 +79,10 @@ const Wishlist = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-slate-800 bg-clip-text text-transparent mb-4">
-            My Wishlist
+            {t('wishlist.title')}
           </h1>
           <p className="text-slate-600 text-lg">
-            Your favorite products saved for later
+            {t('wishlist.subtitle')}
           </p>
         </div>
 
@@ -88,7 +90,7 @@ const Wishlist = () => {
   {safeItems.length > 0 && (
           <div className="flex justify-between items-center mb-8">
             <div className="text-slate-600">
-              <span className="font-medium">{safeItems.length}</span> item{safeItems.length !== 1 ? 's' : ''} in your wishlist
+              {t('wishlist.items_count', { count: safeItems.length })}
             </div>
             <button
               onClick={handleClearWishlist}
@@ -97,7 +99,7 @@ const Wishlist = () => {
               <svg className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
-              Clear Wishlist
+              {t('wishlist.clear')}
             </button>
           </div>
         )}
@@ -111,10 +113,10 @@ const Wishlist = () => {
                 </svg>
               </div>
               <h2 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-slate-800 bg-clip-text text-transparent mb-4">
-                Your Wishlist is Empty
+                {t('wishlist.empty_title')}
               </h2>
               <p className="text-slate-600 mb-8 leading-relaxed">
-                Start adding products to your wishlist by clicking the heart icon on products you love!
+                {t('wishlist.empty_message')}
               </p>
               <Link
                 to="/"
@@ -123,7 +125,7 @@ const Wishlist = () => {
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
-                Continue Shopping
+                {t('wishlist.continue_shopping')}
               </Link>
             </div>
           </div>
@@ -176,19 +178,19 @@ const Wishlist = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-2">
                       <span className="text-2xl font-bold text-emerald-600">
-                        ${typeof (item.product.discount_price || item.product.price) === 'number' 
+                        {t('wishlist.currency')}{typeof (item.product.discount_price || item.product.price) === 'number' 
                           ? (item.product.discount_price || item.product.price).toFixed(2) 
                           : parseFloat(item.product.discount_price || item.product.price || 0).toFixed(2)}
                       </span>
                       {item.product.discount_price && (
                         <span className="text-sm text-slate-400 line-through">
-                          ${typeof item.product.price === 'number' ? item.product.price.toFixed(2) : parseFloat(item.product.price || 0).toFixed(2)}
+                          {t('wishlist.currency')}{typeof item.product.price === 'number' ? item.product.price.toFixed(2) : parseFloat(item.product.price || 0).toFixed(2)}
                         </span>
                       )}
                     </div>
                     {item.product.discount_price && (
                       <div className="bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
-                        SALE
+                        {t('wishlist.sale')}
                       </div>
                     )}
                   </div>
@@ -201,12 +203,13 @@ const Wishlist = () => {
                       <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                       </svg>
-                      Add to Cart
+                      {t('wishlist.add_to_cart')}
                     </button>
                     
                     <button
                       onClick={() => handleRemoveFromWishlist(item.id)}
                       className="p-3 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors duration-200 group"
+                      title={t('wishlist.remove')}
                     >
                       <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

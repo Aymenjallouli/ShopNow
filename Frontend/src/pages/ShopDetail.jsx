@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, Link } from 'react-router-dom';
 import shopService from '../services/shopService';
 // Use the unified advanced ProductCard (same as Home page) for consistency
 import ProductCard from '../components/ProductCard/ProductCard';
-import MiniShopMap from '../components/MiniShopMap';
+import MiniShopMap from '../components/delivery/MiniShopMap';
 
 // Intersection observer for infinite scroll
 function useInfiniteScroll(callback, enabled = true) {
@@ -22,6 +23,7 @@ function useInfiniteScroll(callback, enabled = true) {
 }
 
 export default function ShopDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const [shop, setShop] = useState(null);
   const [products, setProducts] = useState([]);
@@ -75,7 +77,7 @@ export default function ShopDetail() {
         setCategories(cats);
       }
     } catch (e) {
-      setError('Shop introuvable');
+      setError(t('shop.not_found'));
     } finally { setLoading(false); }
   }, [id]);
 
@@ -144,14 +146,14 @@ export default function ShopDetail() {
               </div>
               <h1 className='text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-600 to-slate-800 bg-clip-text text-transparent'>{shop.name}</h1>
             </div>
-            <p className='text-sm md:text-[15px] text-slate-600 leading-relaxed max-w-2xl'>{shop.description || 'Aucune description fournie.'}</p>
+            <p className='text-sm md:text-[15px] text-slate-600 leading-relaxed max-w-2xl'>{shop.description || t('shop.no_description')}</p>
             <div className='flex flex-wrap gap-3 text-xs'>
               <span className='inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-600 shadow-sm'>
-                <span className='h-2 w-2 rounded-full bg-emerald-500 animate-pulse' /> Ville: <span className='font-medium text-slate-800'>{shop.city || '—'}</span>
+                <span className='h-2 w-2 rounded-full bg-emerald-500 animate-pulse' /> {t('shop.city')}: <span className='font-medium text-slate-800'>{shop.city || '—'}</span>
               </span>
               {shop.address && (
                 <span className='inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-600 shadow-sm'>
-                  <span className='h-2 w-2 rounded-full bg-slate-400' /> Adresse: <span className='font-medium text-slate-800'>{shop.address}</span>
+                  <span className='h-2 w-2 rounded-full bg-slate-400' /> {t('shop.address')}: <span className='font-medium text-slate-800'>{shop.address}</span>
                 </span>
               )}
             </div>
@@ -159,23 +161,23 @@ export default function ShopDetail() {
               <div className='grid grid-cols-3 gap-4 pt-4'>
                 <div className='group relative overflow-hidden rounded-2xl bg-white border border-slate-200 p-4 shadow-sm hover:shadow-md transition'>
                   <div className='absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-emerald-500/70 to-emerald-300/70 opacity-0 group-hover:opacity-100 transition' />
-                  <p className='text-[10px] uppercase tracking-wide text-slate-500 font-semibold'>Produits</p>
+                  <p className='text-[10px] uppercase tracking-wide text-slate-500 font-semibold'>{t('shop.products')}</p>
                   <p className='text-2xl font-bold text-slate-800'>{stats.total_products}</p>
                 </div>
                 <div className='group relative overflow-hidden rounded-2xl bg-white border border-slate-200 p-4 shadow-sm hover:shadow-md transition'>
                   <div className='absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-emerald-600 to-emerald-400 opacity-0 group-hover:opacity-100 transition' />
-                  <p className='text-[10px] uppercase tracking-wide text-slate-500 font-semibold'>Disponibles</p>
+                  <p className='text-[10px] uppercase tracking-wide text-slate-500 font-semibold'>{t('shop.available')}</p>
                   <p className='text-2xl font-bold text-emerald-600'>{stats.available_products}</p>
                 </div>
                 <div className='group relative overflow-hidden rounded-2xl bg-white border border-slate-200 p-4 shadow-sm hover:shadow-md transition'>
                   <div className='absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-indigo-500 to-emerald-400 opacity-0 group-hover:opacity-100 transition' />
-                  <p className='text-[10px] uppercase tracking-wide text-slate-500 font-semibold'>Catégories</p>
+                  <p className='text-[10px] uppercase tracking-wide text-slate-500 font-semibold'>{t('shop.categories')}</p>
                   <p className='text-2xl font-bold text-indigo-600'>{stats.categories?.length || 0}</p>
                 </div>
               </div>
             )}
             <div>
-              <Link to='/' className='inline-flex items-center gap-1 text-xs font-medium text-emerald-700 hover:text-emerald-800 underline underline-offset-4'>← Retour Accueil</Link>
+              <Link to='/' className='inline-flex items-center gap-1 text-xs font-medium text-emerald-700 hover:text-emerald-800 underline underline-offset-4'>← {t('shop.back_home')}</Link>
             </div>
           </div>
           <div className='space-y-6'>
@@ -184,16 +186,16 @@ export default function ShopDetail() {
               <div className='flex items-center justify-between mb-4'>
                 <p className='text-xs font-semibold text-slate-700 tracking-wide flex items-center gap-2'>
                   <span className='inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse' />
-                  Catégories
+                  {t('shop.categories')}
                 </p>
                 {categoryFilter !== 'all' && (
-                  <button onClick={() => setCategoryFilter('all')} className='text-[11px] font-medium text-emerald-600 hover:text-emerald-700'>Réinitialiser</button>
+                  <button onClick={() => setCategoryFilter('all')} className='text-[11px] font-medium text-emerald-600 hover:text-emerald-700'>{t('shop.reset')}</button>
                 )}
               </div>
               <div className='mb-3'>
                 <input
                   type='text'
-                  placeholder='Rechercher…'
+                  placeholder={t('shop.search_category')}
                   value={categorySearch}
                   onChange={e => setCategorySearch(e.target.value)}
                   className='w-full text-[12px] px-3 py-2 rounded-lg border border-slate-300 bg-white/80 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none placeholder-slate-400 text-slate-800 caret-emerald-600'
@@ -205,7 +207,7 @@ export default function ShopDetail() {
                   onClick={() => setCategoryFilter('all')}
                   className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border transition shadow-sm ${categoryFilter === 'all' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`}
                 >
-                  Toutes {stats?.total_products ? `(${stats.total_products})` : ''}
+                  {t('shop.all')} {stats?.total_products ? `(${stats.total_products})` : ''}
                 </button>
                 {filteredCategories.map(c => {
                   const active = categoryFilter === c.name;
@@ -223,7 +225,7 @@ export default function ShopDetail() {
                   );
                 })}
                 {!filteredCategories.length && (
-                  <span className='text-[11px] text-slate-400 italic px-2 py-1'>Aucun résultat</span>
+                  <span className='text-[11px] text-slate-400 italic px-2 py-1'>{t('shop.no_result')}</span>
                 )}
               </div>
               <div className='mt-6'>
@@ -236,8 +238,8 @@ export default function ShopDetail() {
 
       {/* PRODUCT GRID */}
       <div className='mb-6 flex items-center justify-between'>
-        <h2 className='text-lg font-semibold text-slate-800'>Produits {categoryFilter !== 'all' && <span className='text-slate-400 font-normal'>/ {categoryFilter}</span>}</h2>
-        <p className='text-xs text-slate-500'>{displayed.length} affichés • {stats?.total_products} total</p>
+  <h2 className='text-lg font-semibold text-slate-800'>{t('shop.products')} {categoryFilter !== 'all' && <span className='text-slate-400 font-normal'>/ {categoryFilter}</span>}</h2>
+  <p className='text-xs text-slate-500'>{t('shop.displayed_count', { count: displayed.length })} • {t('shop.total_count', { count: stats?.total_products })}</p>
       </div>
       <div className='grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
         {displayed.map(p => (
@@ -248,10 +250,10 @@ export default function ShopDetail() {
         {!displayed.length && (
           <div className='col-span-full'>
             <div className='rounded-2xl border border-dashed border-slate-300 p-12 text-center bg-white/70'>
-              <p className='text-sm font-medium text-slate-600 mb-1'>Aucun produit trouvé</p>
-              <p className='text-xs text-slate-400'>Essayez une autre catégorie ou réinitialisez le filtre.</p>
+              <p className='text-sm font-medium text-slate-600 mb-1'>{t('shop.no_product_found')}</p>
+              <p className='text-xs text-slate-400'>{t('shop.try_another_category')}</p>
               {categoryFilter !== 'all' && (
-                <button onClick={() => setCategoryFilter('all')} className='mt-4 inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700'>Réinitialiser</button>
+                <button onClick={() => setCategoryFilter('all')} className='mt-4 inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700'>{t('shop.reset')}</button>
               )}
             </div>
           </div>
@@ -269,12 +271,12 @@ export default function ShopDetail() {
                 {loadingMore && (
                   <span className='inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin' />
                 )}
-                {loadingMore ? 'Chargement…' : 'Charger plus'}
+                {loadingMore ? t('shop.loading') : t('shop.load_more')}
               </button>
               <div ref={sentinelRef} className='w-px h-px' />
             </>
           ) : (
-            <p className='text-xs text-slate-400'>Fin de la liste.</p>
+            <p className='text-xs text-slate-400'>{t('shop.end_of_list')}</p>
           )}
         </div>
       )}

@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
-import { useWebVitals, useCLSOptimization } from '../hooks/useWebVitals';
+import { useWebVitals, useCLSOptimization } from '../../hooks/useWebVitals';
 import OptimizedFooter from './OptimizedFooter';
-import LoadingSpinner from '../ui/LoadingSpinner';
+import LoadingSpinner from '../../ui/LoadingSpinner';
 
 /**
  * Layout principal optimisé pour les Core Web Vitals

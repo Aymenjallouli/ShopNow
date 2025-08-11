@@ -1,9 +1,11 @@
+
 import { createRoot } from 'react-dom/client';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import App from './App';
+import './i18n';
 import store from './app/store';
 import { PerformanceProvider } from './context/PerformanceContext';
 import './index.css';

@@ -1,20 +1,22 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { createOrder } from '../features/orders/ordersSlice';
 import { clearCart } from '../features/cart/cartSlice';
-import PaymentMethodSelector from '../components/PaymentMethodSelector';
-import DeliveryCalculator from '../components/DeliveryCalculator';
-import SafeMapboxDeliveryMap from '../components/SafeMapboxDeliveryMap';
-import SimpleDeliveryMap from '../components/SimpleDeliveryMap';
-import LazyImage from '../components/LazyImage';
-import PerformancePreloader from '../components/PerformancePreloader';
-import Loader from '../components/Loader';
-import ErrorMessage from '../components/ErrorMessage';
+import PaymentMethodSelector from '../components/payment/PaymentMethodSelector';
+import DeliveryCalculator from '../components/delivery/DeliveryCalculator';
+import SafeMapboxDeliveryMap from '../components/delivery/SafeMapboxDeliveryMap';
+import SimpleDeliveryMap from '../components/delivery/SimpleDeliveryMap';
+import LazyImage from '../components/shared/LazyImage';
+import PerformancePreloader from '../components/shared/PerformancePreloader';
+import Loader from '../components/shared/Loader';
+import ErrorMessage from '../components/shared/ErrorMessage';
 import { optimizeWebVitals, preloadCriticalResources } from '../utils/performanceOptimizer';
 import { usePerformanceMonitor, useRenderOptimization } from '../hooks/usePerformanceMonitor';
 
 const Checkout = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { items, totalPrice, status: cartStatus } = useSelector((state) => state.cart);
@@ -226,10 +228,10 @@ const Checkout = () => {
                 </svg>
               </div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-slate-800 bg-clip-text text-transparent mb-4">
-                Your Cart is Empty
+                {t('checkout.emptyTitle')}
               </h1>
               <p className="text-slate-600 mb-8 leading-relaxed">
-                You cannot proceed to checkout with an empty cart. Please add some items first.
+                {t('checkout.emptyDesc')}
               </p>
               <button
                 onClick={() => navigate('/')}
@@ -238,7 +240,7 @@ const Checkout = () => {
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
-                Start Shopping
+                {t('checkout.startShopping')}
               </button>
             </div>
           </div>
@@ -255,22 +257,22 @@ const Checkout = () => {
         {/* Header optimisé pour LCP */}
         <div className="checkout-header text-center mb-8">
           <h1 className="checkout-title text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-slate-800 bg-clip-text text-transparent mb-4">
-            Checkout
+            {t('checkout.title')}
           </h1>
           <p className="text-slate-600 text-lg">
-            Complete your order with secure payment processing
+            {t('checkout.desc')}
           </p>
         </div>
         
         <div className="checkout-grid grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 mb-6">
-              <h2 className="text-2xl font-bold text-slate-800 mb-6">Shipping Information</h2>
+              <h2 className="text-2xl font-bold text-slate-800 mb-6">{t('checkout.shippingInfo')}</h2>
               
               <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
                 <div className="sm:col-span-2">
                   <label htmlFor="fullName" className="block text-sm font-medium text-slate-700 mb-2">
-                    Full Name
+                    {t('checkout.fullName')}
                   </label>
                   <input
                     type="text"
@@ -285,7 +287,7 @@ const Checkout = () => {
                 
                 <div className="sm:col-span-2">
                   <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
-                    Email Address
+                    {t('checkout.email')}
                   </label>
                   <input
                     type="email"
@@ -300,7 +302,7 @@ const Checkout = () => {
                 
                 <div className="sm:col-span-2">
                   <label htmlFor="address" className="block text-sm font-medium text-slate-700 mb-2">
-                    Street Address
+                    {t('checkout.address')}
                   </label>
                   <input
                     type="text"
@@ -315,7 +317,7 @@ const Checkout = () => {
                 
                 <div>
                   <label htmlFor="city" className="block text-sm font-medium text-slate-700 mb-2">
-                    Gouvernorat
+                    {t('checkout.governorate')}
                   </label>
                   <select
                     id="city"
@@ -335,7 +337,7 @@ const Checkout = () => {
                 
                 <div>
                   <label htmlFor="state" className="block text-sm font-medium text-slate-700 mb-2">
-                    State / Province
+                    {t('checkout.state')}
                   </label>
                   <input
                     type="text"
@@ -350,7 +352,7 @@ const Checkout = () => {
                 
                 <div>
                   <label htmlFor="postalCode" className="block text-sm font-medium text-slate-700 mb-2">
-                    Postal Code
+                    {t('checkout.postalCode')}
                   </label>
                   <input
                     type="text"
@@ -365,7 +367,7 @@ const Checkout = () => {
                 
                 <div>
                   <label htmlFor="country" className="block text-sm font-medium text-slate-700 mb-2">
-                    Pays
+                    {t('checkout.country')}
                   </label>
                   <select
                     id="country"
@@ -389,7 +391,7 @@ const Checkout = () => {
                 
                 <div className="sm:col-span-2">
                   <label htmlFor="phoneNumber" className="block text-sm font-medium text-slate-700 mb-2">
-                    Phone Number
+                    {t('checkout.phone')}
                   </label>
                   <input
                     type="tel"
@@ -429,14 +431,14 @@ const Checkout = () => {
                     onClick={() => setUseSimpleMap(!useSimpleMap)}
                     className="text-sm text-emerald-600 hover:text-emerald-700 underline"
                   >
-                    {useSimpleMap ? 'Utiliser la carte Mapbox' : 'Utiliser la sélection simple'}
+                    {useSimpleMap ? t('checkout.useMapbox') : t('checkout.useSimpleSelection')}
                   </button>
                 </div>
               )}
             </div>
             
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
-              <h2 className="text-2xl font-bold text-slate-800 mb-6">Payment Information</h2>
+              <h2 className="text-2xl font-bold text-slate-800 mb-6">{t('checkout.paymentInfo')}</h2>
               
               <PaymentMethodSelector
                 onSuccess={handleOrderSuccess}
@@ -463,7 +465,7 @@ const Checkout = () => {
           
           <div className="lg:col-span-1">
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 sticky top-6">
-              <h2 className="text-2xl font-bold text-slate-800 mb-6">Order Summary</h2>
+              <h2 className="text-2xl font-bold text-slate-800 mb-6">{t('checkout.summaryTitle')}</h2>
               
               <div className="flow-root">
                 <ul className="divide-y divide-slate-200/50">
@@ -494,9 +496,9 @@ const Checkout = () => {
                           </div>
                         </div>
                         <div className="flex-1 flex items-end justify-between text-sm">
-                          <p className="text-slate-500">Qty {item.quantity}</p>
+                          <p className="text-slate-500">{t('checkout.qty', {count: item.quantity})}</p>
                           <p className="text-slate-400">
-                            ${typeof item.product.price === 'number' ? item.product.price.toFixed(2) : parseFloat(item.product.price || 0).toFixed(2)} each
+                            {t('checkout.unitPrice', {price: (typeof item.product.price === 'number' ? item.product.price.toFixed(2) : parseFloat(item.product.price || 0).toFixed(2))})}
                           </p>
                         </div>
                       </div>
@@ -508,41 +510,41 @@ const Checkout = () => {
               <div className="border-t border-slate-200/50 pt-6 mt-6">
                 <div className="space-y-3">
                   <div className="flex justify-between text-base text-slate-600">
-                    <p>Subtotal</p>
+                    <p>{t('checkout.subtotal')}</p>
                     <p className="font-medium">${typeof totalPrice === 'number' ? totalPrice.toFixed(2) : parseFloat(totalPrice || 0).toFixed(2)}</p>
                   </div>
                   <div className="flex justify-between text-base text-slate-600">
-                    <p>Livraison</p>
+                    <p>{t('checkout.shipping')}</p>
                     <p className="font-medium text-emerald-600">
-                      {deliveryInfo.fee > 0 ? `${(typeof deliveryInfo.fee === 'number' ? deliveryInfo.fee : parseFloat(deliveryInfo.fee || 0)).toFixed(2)} TND` : 'À calculer'}
+                      {deliveryInfo.fee > 0 ? `${(typeof deliveryInfo.fee === 'number' ? deliveryInfo.fee : parseFloat(deliveryInfo.fee || 0)).toFixed(2)} TND` : t('checkout.toCalculate')}
                     </p>
                   </div>
                   {deliveryInfo.estimatedTime && (
                     <div className="flex justify-between text-sm text-slate-500">
-                      <p>Temps estimé</p>
+                      <p>{t('checkout.estimatedTime')}</p>
                       <p>{deliveryInfo.estimatedTime}</p>
                     </div>
                   )}
                   {deliveryInfo.distance > 0 && (
                     <div className="flex justify-between text-sm text-slate-500">
-                      <p>Distance</p>
+                      <p>{t('checkout.distance')}</p>
                       <p>{deliveryInfo.distance} km</p>
                     </div>
                   )}
                   <div className="flex justify-between text-xl font-bold text-slate-800 pt-3 border-t border-slate-200/50">
-                    <p>Total</p>
+                    <p>{t('checkout.total')}</p>
                     <p className="text-emerald-600">
                       ${typeof getTotalWithDelivery() === 'number' ? getTotalWithDelivery().toFixed(2) : parseFloat(getTotalWithDelivery() || 0).toFixed(2)}
                       {deliveryInfo.fee > 0 && (
                         <span className="text-sm font-normal text-slate-500 ml-2">
-                          (+ {(typeof deliveryInfo.fee === 'number' ? deliveryInfo.fee : parseFloat(deliveryInfo.fee || 0)).toFixed(2)} TND livraison)
+                          (+ {(typeof deliveryInfo.fee === 'number' ? deliveryInfo.fee : parseFloat(deliveryInfo.fee || 0)).toFixed(2)} TND {t('checkout.shipping')})
                         </span>
                       )}
                     </p>
                   </div>
                 </div>
                 <p className="mt-4 text-sm text-slate-500 text-center">
-                  Les frais de livraison sont calculés automatiquement selon votre adresse.
+                  {t('checkout.shippingNote')}
                 </p>
               </div>
             </div>

@@ -1,13 +1,15 @@
 import React, { useState, memo, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ShoppingCartIcon, HeartIcon, StarIcon, EyeIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconSolid, StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../../features/cart/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../../features/wishlist/wishlistSlice';
-import { OptimizedImage } from '../LazyLoadWrapper';
+import { OptimizedImage } from '../shared/LazyLoadWrapper';
 
 const ProductCard = memo(({ product }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const { items: wishlistItemsRaw } = useSelector((state) => state.wishlist || { items: [] });
   const wishlistItems = Array.isArray(wishlistItemsRaw) ? wishlistItemsRaw : [];
@@ -52,7 +54,7 @@ const ProductCard = memo(({ product }) => {
 
   const handleImageLoad = useCallback(() => setImageLoaded(true), []);
   const handleImageError = useCallback((e) => { 
-    e.target.src = 'https://via.placeholder.com/400x400?text=Product';
+    e.target.src = '/placeholder.svg';
     setImageLoaded(true);
   }, []);
 
@@ -72,16 +74,16 @@ const ProductCard = memo(({ product }) => {
   return (
     <div className="group relative bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1">
       {/* Discount Badge */}
-  {hasDiscount && discountPercentage > 0 && (
+      {hasDiscount && discountPercentage > 0 && (
         <div className="absolute top-3 left-3 z-10 bg-gradient-to-r from-rose-500 to-rose-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-lg">
-          -{discountPercentage}%
+          {t('product.discount', { discount: discountPercentage })}
         </div>
       )}
 
       {/* Stock Status Badge */}
       {product.stock <= 5 && product.stock > 0 && (
         <div className="absolute top-3 right-3 z-10 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-medium px-2.5 py-1 rounded-full shadow-lg">
-          Only {product.stock} left
+          {t('product.only_x_left', { count: product.stock })}
         </div>
       )}
 
@@ -89,7 +91,7 @@ const ProductCard = memo(({ product }) => {
       <div className="relative aspect-square overflow-hidden bg-slate-50">
         <Link to={`/products/${product.id}`} className="block h-full">
           <OptimizedImage
-            src={product.image || 'https://via.placeholder.com/400x400?text=Product'}
+            src={product.image || '/placeholder.svg'}
             alt={product.name}
             className="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
             onLoad={handleImageLoad}
@@ -102,7 +104,7 @@ const ProductCard = memo(({ product }) => {
           <button
             onClick={handleQuickView}
             className="bg-white/90 backdrop-blur-sm hover:bg-white text-emerald-600 hover:text-emerald-700 p-2.5 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 delay-75"
-            title="View Details"
+            title={t('product.view_details')}
           >
             <EyeIcon className="h-5 w-5" />
           </button>
@@ -113,7 +115,7 @@ const ProductCard = memo(({ product }) => {
                 ? 'bg-rose-500 text-white hover:bg-rose-600'
                 : 'bg-white/90 backdrop-blur-sm hover:bg-white text-slate-700 hover:text-rose-500'
             }`}
-            title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+            title={isWishlisted ? t('product.remove_from_wishlist') : t('product.add_to_wishlist')}
           >
             {isWishlisted ? (
               <HeartIconSolid className="h-5 w-5" />
@@ -151,7 +153,7 @@ const ProductCard = memo(({ product }) => {
             )}
           </div>
         ) : (
-          <div className="h-5 mb-3 flex items-center text-[11px] text-slate-400 italic">Pas encore d'avis</div>
+          <div className="h-5 mb-3 flex items-center text-[11px] text-slate-400 italic">{t('product.no_reviews')}</div>
         )}
 
         {/* Price */}
@@ -159,13 +161,13 @@ const ProductCard = memo(({ product }) => {
           <div className="flex items-center space-x-2">
             {!hasDiscount && (
               <span className="text-xl font-bold text-slate-900">
-                ${basePrice.toFixed(2)}
+                {t('product.price', { price: basePrice.toFixed(2) })}
               </span>
             )}
             {hasDiscount && (
               <>
-                <span className="text-xl font-bold text-emerald-600">${product.discount_price.toFixed(2)}</span>
-                <span className="text-sm text-slate-500 line-through">${basePrice.toFixed(2)}</span>
+                <span className="text-xl font-bold text-emerald-600">{t('product.price', { price: product.discount_price.toFixed(2) })}</span>
+                <span className="text-sm text-slate-500 line-through">{t('product.price', { price: basePrice.toFixed(2) })}</span>
               </>
             )}
           </div>
@@ -173,15 +175,15 @@ const ProductCard = memo(({ product }) => {
           {/* Stock Status */}
           {product.stock <= 0 ? (
             <span className="text-sm font-medium text-rose-600 bg-rose-50 px-2 py-1 rounded-lg">
-              Out of stock
+              {t('product.out_of_stock')}
             </span>
           ) : product.stock <= 5 ? (
             <span className="text-sm font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">
-              Low stock
+              {t('product.low_stock')}
             </span>
           ) : (
             <span className="text-sm font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">
-              In stock
+              {t('product.in_stock')}
             </span>
           )}
         </div>
@@ -197,7 +199,7 @@ const ProductCard = memo(({ product }) => {
           }`}
         >
           <ShoppingCartIcon className="h-4 w-4" />
-          <span>{product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}</span>
+          <span>{product.stock > 0 ? t('product.add_to_cart') : t('product.out_of_stock')}</span>
         </button>
         
         {/* View Details Button */}
@@ -206,7 +208,7 @@ const ProductCard = memo(({ product }) => {
           className="w-full flex items-center justify-center space-x-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 bg-slate-100 hover:bg-slate-200 text-slate-700 mt-2"
         >
           <EyeIcon className="h-4 w-4" />
-          <span>View Details</span>
+          <span>{t('product.view_details')}</span>
         </Link>
       </div>
     </div>

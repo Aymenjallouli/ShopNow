@@ -1,6 +1,8 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const About = () => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-emerald-50">
       {/* Hero Section */}
@@ -8,10 +10,10 @@ const About = () => {
         <div className="container mx-auto px-4">
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-emerald-600 to-slate-800 bg-clip-text text-transparent mb-6">
-              About ShopNow
+              {t('about.title')}
             </h1>
             <p className="text-xl text-slate-600 leading-relaxed mb-8">
-              Your trusted partner for online shopping with a commitment to quality, innovation, and exceptional customer experience.
+              {t('about.heroDesc')}
             </p>
           </div>
         </div>
@@ -26,13 +28,13 @@ const About = () => {
                 <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
-                Our Mission
+                {t('about.missionTitle')}
               </h2>
               <p className="text-slate-600 text-lg leading-relaxed mb-6">
-                At ShopNow, we believe that shopping should be simple, secure, and enjoyable. Our mission is to connect customers with the products they love while providing an unparalleled online shopping experience.
+                {t('about.mission1')}
               </p>
               <p className="text-slate-600 text-lg leading-relaxed">
-                We're committed to offering a diverse range of high-quality products at competitive prices, backed by exceptional customer service and fast, reliable delivery.
+                {t('about.mission2')}
               </p>
             </div>
             
@@ -45,7 +47,7 @@ const About = () => {
                     </svg>
                   </div>
                   <h3 className="text-2xl font-bold text-slate-800 mb-2">50K+</h3>
-                  <p className="text-slate-600 font-medium">Happy Customers</p>
+                  <p className="text-slate-600 font-medium">{t('about.stats.customers')}</p>
                 </div>
                 
                 <div className="text-center">
@@ -55,7 +57,7 @@ const About = () => {
                     </svg>
                   </div>
                   <h3 className="text-2xl font-bold text-slate-800 mb-2">10K+</h3>
-                  <p className="text-slate-600 font-medium">Products</p>
+                  <p className="text-slate-600 font-medium">{t('about.stats.products')}</p>
                 </div>
                 
                 <div className="text-center">
@@ -66,7 +68,7 @@ const About = () => {
                     </svg>
                   </div>
                   <h3 className="text-2xl font-bold text-slate-800 mb-2">25+</h3>
-                  <p className="text-slate-600 font-medium">Cities</p>
+                  <p className="text-slate-600 font-medium">{t('about.stats.cities')}</p>
                 </div>
                 
                 <div className="text-center">
@@ -76,7 +78,7 @@ const About = () => {
                     </svg>
                   </div>
                   <h3 className="text-2xl font-bold text-slate-800 mb-2">24/7</h3>
-                  <p className="text-slate-600 font-medium">Support</p>
+                  <p className="text-slate-600 font-medium">{t('about.stats.support')}</p>
                 </div>
               </div>
             </div>
@@ -88,9 +90,9 @@ const About = () => {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-800 mb-4">Our Values</h2>
+            <h2 className="text-4xl font-bold text-slate-800 mb-4">{t('about.valuesTitle')}</h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-              These core values guide everything we do and shape the experience we deliver to our customers.
+              {t('about.valuesDesc')}
             </p>
           </div>
           
@@ -101,9 +103,9 @@ const About = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">Quality First</h3>
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">{t('about.values.qualityTitle')}</h3>
               <p className="text-slate-600 leading-relaxed">
-                We carefully curate every product in our catalog to ensure it meets our high standards for quality and value.
+                {t('about.values.qualityDesc')}
               </p>
             </div>
             
@@ -113,9 +115,9 @@ const About = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">Customer Focused</h3>
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">{t('about.values.customerTitle')}</h3>
               <p className="text-slate-600 leading-relaxed">
-                Your satisfaction is our priority. We listen to your feedback and continuously improve to serve you better.
+                {t('about.values.customerDesc')}
               </p>
             </div>
             
@@ -125,9 +127,9 @@ const About = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">Innovation</h3>
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">{t('about.values.innovationTitle')}</h3>
               <p className="text-slate-600 leading-relaxed">
-                We embrace new technologies and ideas to create a shopping experience that's always ahead of the curve.
+                {t('about.values.innovationDesc')}
               </p>
             </div>
           </div>
@@ -138,9 +140,9 @@ const About = () => {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-800 mb-4">Meet Our Team</h2>
+            <h2 className="text-4xl font-bold text-slate-800 mb-4">{t('about.teamTitle')}</h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-              Behind ShopNow is a passionate team of professionals dedicated to making your shopping experience exceptional.
+              {t('about.teamDesc')}
             </p>
           </div>
           
@@ -150,9 +152,9 @@ const About = () => {
                 <span className="text-2xl font-bold text-white">AJ</span>
               </div>
               <h3 className="text-xl font-bold text-slate-800 mb-2">Aymen Jallouli</h3>
-              <p className="text-emerald-600 font-medium mb-4">CEO & Founder</p>
+              <p className="text-emerald-600 font-medium mb-4">{t('about.team.ceoTitle')}</p>
               <p className="text-slate-600 leading-relaxed">
-                Passionate about creating innovative e-commerce solutions that connect people with products they love.
+                {t('about.team.ceoDesc')}
               </p>
             </div>
             
@@ -161,9 +163,9 @@ const About = () => {
                 <span className="text-2xl font-bold text-white">ST</span>
               </div>
               <h3 className="text-xl font-bold text-slate-800 mb-2">Sarah Thompson</h3>
-              <p className="text-emerald-600 font-medium mb-4">Head of Operations</p>
+              <p className="text-emerald-600 font-medium mb-4">{t('about.team.opsTitle')}</p>
               <p className="text-slate-600 leading-relaxed">
-                Ensures smooth operations and exceptional customer service across all our channels.
+                {t('about.team.opsDesc')}
               </p>
             </div>
             
@@ -172,9 +174,9 @@ const About = () => {
                 <span className="text-2xl font-bold text-white">MR</span>
               </div>
               <h3 className="text-xl font-bold text-slate-800 mb-2">Mike Rodriguez</h3>
-              <p className="text-emerald-600 font-medium mb-4">Technical Director</p>
+              <p className="text-emerald-600 font-medium mb-4">{t('about.team.techTitle')}</p>
               <p className="text-slate-600 leading-relaxed">
-                Leads our technical team in building cutting-edge solutions for the future of e-commerce.
+                {t('about.team.techDesc')}
               </p>
             </div>
           </div>
